@@ -18,5 +18,10 @@ abstract class Rocket extends GameObject{
     public render():void{
         this.draw();
     }
+
+    abstract goLeft();
+    abstract goRight();
+    abstract actionKey();
+    
     abstract move():void;
 }

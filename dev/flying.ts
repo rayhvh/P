@@ -8,5 +8,8 @@ class Flying extends Rocket{
     render(){
         super.render();
     }
+    goLeft(){};
+    goRight(){};
+    actionKey(){};
     move(){}
 }

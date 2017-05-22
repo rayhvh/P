@@ -15,9 +15,10 @@ var GameObject = (function () {
 }());
 var Background = (function (_super) {
     __extends(Background, _super);
-    function Background(image, context) {
+    function Background(image, speed, context) {
         _super.call(this, 0, 0, 400, 400, context);
         this.imageLink = image;
+        this.speed = speed;
     }
     Background.prototype.load = function () {
         var _this = this;
@@ -32,13 +33,16 @@ var Background = (function (_super) {
             this.y = 0;
         }
         else {
-            this.y++;
+            this.y += this.speed;
         }
     };
     Background.prototype.render = function () {
         this.move();
         this.context.drawImage(this.image, 0, this.y);
         this.context.drawImage(this.image, 0, this.y - 400);
+    };
+    Background.prototype.setSpeed = function (newSpeed) {
+        this.speed = newSpeed;
     };
     return Background;
 }(GameObject));
@@ -66,9 +70,45 @@ var Flying = (function (_super) {
     Flying.prototype.render = function () {
         _super.prototype.render.call(this);
     };
+    Flying.prototype.goLeft = function () { };
+    ;
+    Flying.prototype.goRight = function () { };
+    ;
+    Flying.prototype.actionKey = function () { };
+    ;
     Flying.prototype.move = function () { };
     return Flying;
 }(Rocket));
+var KeyHandling = (function () {
+    function KeyHandling(goLeft, goRight) {
+        var _this = this;
+        this.goLeft = goLeft;
+        this.goRight = goRight;
+        document.addEventListener("keydown", function (e) {
+            _this.findKey(e);
+        });
+    }
+    KeyHandling.prototype.findKey = function (e) {
+        switch (e.keyCode) {
+            case 37:
+                this.goLeft();
+                break;
+            case 65:
+                this.goLeft();
+                break;
+            case 39:
+                this.goRight();
+                break;
+            case 68:
+                this.goRight();
+                break;
+            default:
+                console.log("OTHER KEY" + e.keyCode);
+                break;
+        }
+    };
+    return KeyHandling;
+}());
 var Game = (function () {
     function Game() {
     }
@@ -77,8 +117,9 @@ var Game = (function () {
         this.canvas = document.getElementById('canvas');
         this.context = this.canvas.getContext('2d');
         this.rocket = new Standing(200, 300, this.context);
-        this.background = new Background("BLA", this.context);
+        this.background = new Background("BLA", 2, this.context);
         this.background.load();
+        this.keyHandling = new KeyHandling(this.rocket.goLeft, this.rocket.goRight);
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     Game.getInstance = function () {
@@ -105,6 +146,12 @@ var Standing = (function (_super) {
     function Standing(x, y, context) {
         _super.call(this, x, y, context);
     }
+    Standing.prototype.goLeft = function () { console.log("GO LEFT"); };
+    ;
+    Standing.prototype.goRight = function () { console.log("GO RIGHT"); };
+    ;
+    Standing.prototype.actionKey = function () { };
+    ;
     Standing.prototype.render = function () {
         _super.prototype.render.call(this);
     };

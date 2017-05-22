@@ -6,6 +6,10 @@ class Standing extends Rocket{
         super(x,y, context);
     }
 
+    goLeft(){console.log("GO LEFT")};
+    goRight(){console.log("GO RIGHT")};
+    actionKey(){};
+
 
     render(){
         super.render();
