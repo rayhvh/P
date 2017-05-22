@@ -9,7 +9,7 @@ class Game {
     public loader(){
         this.canvas = <HTMLCanvasElement>document.getElementById('canvas');
         this.context = <any>this.canvas.getContext('2d');
-        this.rocket = new Standing(200,100, this.context);
+        this.rocket = new Standing(200,300, this.context);
         this.background = new Background("BLA", this.context);
         this.background.load();
 
@@ -25,8 +25,10 @@ class Game {
     }
 
     gameLoop(){
-        this.rocket.render();
+        this.context.clearRect(0,0,400,400);
         this.background.render();
+        
+        this.rocket.render();
         requestAnimationFrame(() => this.gameLoop());
     }
 } 

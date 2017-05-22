@@ -4,6 +4,7 @@
 class Background extends GameObject{
     private imageLink:String;
     private image:any;
+
     constructor(image:String, context:CanvasRenderingContext2D){
         super(0,0,400,400, context);
         this.imageLink = image;
@@ -18,9 +19,18 @@ class Background extends GameObject{
         };
         
     }
+    move(){
+        if(this.y >= 400){
+            this.y = 0;
+        }else{
+            this.y++;
+        }
+    }
 
     render(){
-        this.context.drawImage(this.image,0,0);
+        this.move();
+        this.context.drawImage(this.image,0,this.y);
+        this.context.drawImage(this.image,0,this.y - 400);
     }
 
 }

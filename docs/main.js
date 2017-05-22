@@ -27,8 +27,18 @@ var Background = (function (_super) {
             _this.render();
         };
     };
+    Background.prototype.move = function () {
+        if (this.y >= 400) {
+            this.y = 0;
+        }
+        else {
+            this.y++;
+        }
+    };
     Background.prototype.render = function () {
-        this.context.drawImage(this.image, 0, 0);
+        this.move();
+        this.context.drawImage(this.image, 0, this.y);
+        this.context.drawImage(this.image, 0, this.y - 400);
     };
     return Background;
 }(GameObject));
@@ -66,7 +76,7 @@ var Game = (function () {
         var _this = this;
         this.canvas = document.getElementById('canvas');
         this.context = this.canvas.getContext('2d');
-        this.rocket = new Standing(200, 100, this.context);
+        this.rocket = new Standing(200, 300, this.context);
         this.background = new Background("BLA", this.context);
         this.background.load();
         requestAnimationFrame(function () { return _this.gameLoop(); });
@@ -80,8 +90,9 @@ var Game = (function () {
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
-        this.rocket.render();
+        this.context.clearRect(0, 0, 400, 400);
         this.background.render();
+        this.rocket.render();
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
