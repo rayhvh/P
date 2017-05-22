@@ -8,6 +8,8 @@ class Game {
 
     private rocket:Rocket;
     private background:Background;
+
+    private asteroid:Asteroid;
     
 
     //loader
@@ -15,6 +17,7 @@ class Game {
         this.canvas = <HTMLCanvasElement>document.getElementById('canvas');
         this.context = <any>this.canvas.getContext('2d');
         this.rocket = new Flying(200,300, this.context);
+        this.asteroid = new Falling(this.context);
 
         this.background = new Background("BLA",2, this.context);
         this.background.load();
@@ -35,6 +38,7 @@ class Game {
     gameLoop(){
         this.context.clearRect(0,0,400,400);
         this.background.render();
+        this.asteroid.drawRect();
 
         this.rocket.render();
         this.keyHandling.doAction();

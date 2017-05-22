@@ -13,6 +13,46 @@ var GameObject = (function () {
     }
     return GameObject;
 }());
+var Asteroid = (function (_super) {
+    __extends(Asteroid, _super);
+    function Asteroid(x, y, w, h, context) {
+        _super.call(this, x, y, w, h, context);
+        this.rotate = 10;
+    }
+    Asteroid.prototype.draw = function () {
+        var centerX = this.w / 2 + this.x;
+        var centerY = this.w / 2 + this.y;
+        this.context.beginPath();
+        this.context.arc(centerX, centerY, this.w, 0, 2 * Math.PI, false);
+        this.context.fillStyle = 'green';
+        this.context.fill();
+        this.context.lineWidth = 5;
+        this.context.strokeStyle = '#003300';
+        this.context.stroke();
+    };
+    Asteroid.prototype.render = function () {
+        this.draw();
+    };
+    Asteroid.prototype.drawRect = function () {
+        this.incrementAngle();
+        this.context.save();
+        this.context.translate(this.w * 4, this.h * 4);
+        this.context.rotate(this.convertToRadians(this.rotate));
+        this.context.fillStyle = 'yellow';
+        this.context.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+        this.context.restore();
+    };
+    Asteroid.prototype.incrementAngle = function () {
+        this.rotate++;
+        if (this.rotate > 360) {
+            this.rotate = 0;
+        }
+    };
+    Asteroid.prototype.convertToRadians = function (degree) {
+        return degree * (Math.PI / 180);
+    };
+    return Asteroid;
+}(GameObject));
 var Background = (function (_super) {
     __extends(Background, _super);
     function Background(image, speed, context) {
@@ -47,6 +87,15 @@ var Background = (function (_super) {
     };
     return Background;
 }(GameObject));
+var Falling = (function (_super) {
+    __extends(Falling, _super);
+    function Falling(context) {
+        _super.call(this, 100, 100, 20, 20, context);
+    }
+    Falling.prototype.move = function () {
+    };
+    return Falling;
+}(Asteroid));
 var Rocket = (function (_super) {
     __extends(Rocket, _super);
     function Rocket(x, y, context) {
@@ -147,6 +196,7 @@ var Game = (function () {
         this.canvas = document.getElementById('canvas');
         this.context = this.canvas.getContext('2d');
         this.rocket = new Flying(200, 300, this.context);
+        this.asteroid = new Falling(this.context);
         this.background = new Background("BLA", 2, this.context);
         this.background.load();
         this.keyHandling = new KeyHandling(this.rocket);
@@ -163,6 +213,7 @@ var Game = (function () {
         var _this = this;
         this.context.clearRect(0, 0, 400, 400);
         this.background.render();
+        this.asteroid.drawRect();
         this.rocket.render();
         this.keyHandling.doAction();
         requestAnimationFrame(function () { return _this.gameLoop(); });
