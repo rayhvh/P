@@ -1,21 +1,26 @@
 class Game {
+    public static instance:Game;
+
     private canvas:HTMLCanvasElement;
     private context:CanvasRenderingContext2D;
-    public static instance:Game;
+
+    private keyHandling:KeyHandling;
+
     private rocket:Rocket;
     private background:Background;
-    private keyHandling:KeyHandling;
+    
 
     //loader
     public loader(){
         this.canvas = <HTMLCanvasElement>document.getElementById('canvas');
         this.context = <any>this.canvas.getContext('2d');
-        this.rocket = new Standing(200,300, this.context);
+        this.rocket = new Flying(200,300, this.context);
+
         this.background = new Background("BLA",2, this.context);
         this.background.load();
-        this.keyHandling = new KeyHandling(this.rocket.goLeft,this.rocket.goRight);
 
-        
+        this.keyHandling = new KeyHandling(this.rocket);
+
         requestAnimationFrame(() => this.gameLoop());
     }
 
@@ -32,6 +37,7 @@ class Game {
         this.background.render();
 
         this.rocket.render();
+        this.keyHandling.doAction();
         requestAnimationFrame(() => this.gameLoop());
     }
 } 

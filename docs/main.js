@@ -19,6 +19,7 @@ var Background = (function (_super) {
         _super.call(this, 0, 0, 400, 400, context);
         this.imageLink = image;
         this.speed = speed;
+        this.game = Game.getInstance();
     }
     Background.prototype.load = function () {
         var _this = this;
@@ -49,7 +50,7 @@ var Background = (function (_super) {
 var Rocket = (function (_super) {
     __extends(Rocket, _super);
     function Rocket(x, y, context) {
-        _super.call(this, x, y, 10, 50, context);
+        _super.call(this, x, y, 30, 60, context);
         this.context = context;
     }
     Rocket.prototype.draw = function () {
@@ -66,41 +67,70 @@ var Flying = (function (_super) {
     __extends(Flying, _super);
     function Flying(x, y, context) {
         _super.call(this, x, y, context);
+        this.speed = 2;
+        this.sideSpeed = 3;
     }
     Flying.prototype.render = function () {
         _super.prototype.render.call(this);
     };
-    Flying.prototype.goLeft = function () { };
-    ;
-    Flying.prototype.goRight = function () { };
-    ;
+    Flying.prototype.goLeft = function () {
+        console.log("HIT LEFT");
+        this.x -= this.sideSpeed;
+    };
+    Flying.prototype.goRight = function () {
+        this.x += this.sideSpeed;
+    };
     Flying.prototype.actionKey = function () { };
-    ;
     Flying.prototype.move = function () { };
     return Flying;
 }(Rocket));
 var KeyHandling = (function () {
-    function KeyHandling(goLeft, goRight) {
+    function KeyHandling(rocket) {
         var _this = this;
-        this.goLeft = goLeft;
-        this.goRight = goRight;
-        document.addEventListener("keydown", function (e) {
-            _this.findKey(e);
-        });
+        this.rocket = rocket;
+        document.addEventListener("keydown", function (e) { return _this.keyDown(e); });
+        document.addEventListener("keyup", function (e) { return _this.keyUp(e); });
     }
-    KeyHandling.prototype.findKey = function (e) {
+    KeyHandling.prototype.doAction = function () {
+        if (this.left) {
+            this.rocket.goLeft();
+        }
+        if (this.right) {
+            this.rocket.goRight();
+        }
+    };
+    KeyHandling.prototype.keyDown = function (e) {
         switch (e.keyCode) {
             case 37:
-                this.goLeft();
+                this.left = true;
                 break;
             case 65:
-                this.goLeft();
+                this.left = true;
                 break;
             case 39:
-                this.goRight();
+                this.right = true;
                 break;
             case 68:
-                this.goRight();
+                this.right = true;
+                break;
+            default:
+                console.log("OTHER KEY" + e.keyCode);
+                break;
+        }
+    };
+    KeyHandling.prototype.keyUp = function (e) {
+        switch (e.keyCode) {
+            case 37:
+                this.left = false;
+                break;
+            case 65:
+                this.left = false;
+                break;
+            case 39:
+                this.right = false;
+                break;
+            case 68:
+                this.right = false;
                 break;
             default:
                 console.log("OTHER KEY" + e.keyCode);
@@ -116,10 +146,10 @@ var Game = (function () {
         var _this = this;
         this.canvas = document.getElementById('canvas');
         this.context = this.canvas.getContext('2d');
-        this.rocket = new Standing(200, 300, this.context);
+        this.rocket = new Flying(200, 300, this.context);
         this.background = new Background("BLA", 2, this.context);
         this.background.load();
-        this.keyHandling = new KeyHandling(this.rocket.goLeft, this.rocket.goRight);
+        this.keyHandling = new KeyHandling(this.rocket);
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     Game.getInstance = function () {
@@ -134,6 +164,7 @@ var Game = (function () {
         this.context.clearRect(0, 0, 400, 400);
         this.background.render();
         this.rocket.render();
+        this.keyHandling.doAction();
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
@@ -145,6 +176,8 @@ var Standing = (function (_super) {
     __extends(Standing, _super);
     function Standing(x, y, context) {
         _super.call(this, x, y, context);
+        this.sideSpeed = 0;
+        this.speed = 0;
     }
     Standing.prototype.goLeft = function () { console.log("GO LEFT"); };
     ;

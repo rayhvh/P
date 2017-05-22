@@ -3,9 +3,10 @@
 
 abstract class Rocket extends GameObject{
     protected speed:number;
+    protected sideSpeed:number;
 
     constructor(x:number, y:number, context:CanvasRenderingContext2D){
-        super(x,y,10,50, context);
+        super(x,y,30,60, context);
         this.context = context;
     }
 

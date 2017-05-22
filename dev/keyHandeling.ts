@@ -1,29 +1,67 @@
 class KeyHandling{
-    private goLeft:Function;
-    private goRight:Function;
+    // private goLeft:Function;
+    // private goRight:Function; 
+    private rocket:Rocket;
+    private holdingKeys
+    private left:Boolean;
+    private right:Boolean;
 
-    constructor(goLeft:Function,goRight:Function){
-        this.goLeft = goLeft;
-        this.goRight = goRight;
+    constructor(rocket:Rocket){
+        // this.goLeft = goLeft;
+        // this.goRight = goRight;
+        this.rocket = rocket;
 
-        document.addEventListener("keydown", (e)=>{
-            this.findKey(e);
-        });
+        document.addEventListener("keydown", (e)=>this.keyDown(e));
+        document.addEventListener("keyup", (e)=>this.keyUp(e));
+        //     // this.findKey(e);
+        //     this.rocket.goLeft();
+        // });
     }
 
-    findKey(e:KeyboardEvent){
+    doAction(){
+        if(this.left){
+            this.rocket.goLeft();
+        }
+
+        if(this.right){
+            this.rocket.goRight();
+        }
+    }
+
+    keyDown(e:KeyboardEvent){
          switch(e.keyCode){
                 case 37: 
-                    this.goLeft();
+                    this.left = true;
                     break;
                 case 65:
-                    this.goLeft();
+                    this.left = true;
                     break;
                 case 39:
-                    this.goRight();
+                    this.right = true;
                     break;
                 case 68:
-                    this.goRight();
+                    this.right = true;
+                    break;
+
+                default:
+                    console.log("OTHER KEY" + e.keyCode);
+                    break;
+            }
+    }
+
+    keyUp(e:KeyboardEvent){
+         switch(e.keyCode){
+                case 37: 
+                    this.left = false;
+                    break;
+                case 65:
+                    this.left = false;
+                    break;
+                case 39:
+                    this.right = false;
+                    break;
+                case 68:
+                    this.right = false;
                     break;
 
                 default:
