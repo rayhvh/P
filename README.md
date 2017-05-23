@@ -14,9 +14,9 @@ Af:
 ![UML](https://raw.githubusercontent.com/IvoKroon/P/master/UML-V1.png)
 
 #### Nog te doen:
-* Fullscreen maken
-* Launch functie
-* Hit detectie functie aan koppelen
-* Scoren optellen en laten zien
-* Sprites toevoegen.
+- [ ] Fullscreen maken
+- [ ] Launch functie
+- [ ] Hit detectie functie aan koppelen
+- [ ] Scoren optellen en laten zien
+- [ ] Sprites toevoegen.
 
