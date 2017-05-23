@@ -16,6 +16,12 @@ abstract class Rocket extends GameObject{
         this.context.fill();
     }
 
+    public checkCollision(asteroid:Asteroid){
+        if(Util.RectCircleColliding(this,asteroid)){
+            console.log("COLLIDING!!!");
+        }
+    }
+
     public render():void{
         this.draw();
     }

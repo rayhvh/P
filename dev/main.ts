@@ -38,9 +38,10 @@ class Game {
     gameLoop(){
         this.context.clearRect(0,0,400,400);
         this.background.render();
-        this.asteroid.drawRect();
+        this.asteroid.move();
 
         this.rocket.render();
+        this.rocket.checkCollision(this.asteroid);
         this.keyHandling.doAction();
         requestAnimationFrame(() => this.gameLoop());
     }

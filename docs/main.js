@@ -26,12 +26,6 @@ var Asteroid = (function (_super) {
         this.context.arc(centerX, centerY, this.w, 0, 2 * Math.PI, false);
         this.context.fillStyle = 'green';
         this.context.fill();
-        this.context.lineWidth = 5;
-        this.context.strokeStyle = '#003300';
-        this.context.stroke();
-    };
-    Asteroid.prototype.render = function () {
-        this.draw();
     };
     Asteroid.prototype.drawRect = function () {
         this.incrementAngle();
@@ -91,8 +85,11 @@ var Falling = (function (_super) {
     __extends(Falling, _super);
     function Falling(context) {
         _super.call(this, 100, 100, 20, 20, context);
+        this.speed = 2;
     }
     Falling.prototype.move = function () {
+        this.y++;
+        this.draw();
     };
     return Falling;
 }(Asteroid));
@@ -106,6 +103,11 @@ var Rocket = (function (_super) {
         this.context.fillRect(this.x, this.y, this.w, this.h);
         this.context.fillStyle = 'yellow';
         this.context.fill();
+    };
+    Rocket.prototype.checkCollision = function (asteroid) {
+        if (Util.RectCircleColliding(this, asteroid)) {
+            console.log("COLLIDING!!!");
+        }
     };
     Rocket.prototype.render = function () {
         this.draw();
@@ -213,8 +215,9 @@ var Game = (function () {
         var _this = this;
         this.context.clearRect(0, 0, 400, 400);
         this.background.render();
-        this.asteroid.drawRect();
+        this.asteroid.move();
         this.rocket.render();
+        this.rocket.checkCollision(this.asteroid);
         this.keyHandling.doAction();
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
@@ -245,6 +248,25 @@ var Standing = (function (_super) {
 var Util = (function () {
     function Util() {
     }
+    Util.RectCircleColliding = function (gameObject1, gameObject2) {
+        var distX = Math.abs(gameObject1.x - gameObject2.x - gameObject2.w / 2);
+        var distY = Math.abs(gameObject1.y - gameObject2.y - gameObject2.h / 2);
+        if (distX > (gameObject2.w / 2 + gameObject1.w)) {
+            return false;
+        }
+        if (distY > (gameObject2.h / 2 + gameObject1.w)) {
+            return false;
+        }
+        if (distX <= (gameObject2.w / 2)) {
+            return true;
+        }
+        if (distY <= (gameObject2.h / 2)) {
+            return true;
+        }
+        var dx = distX - gameObject2.w / 2;
+        var dy = distY - gameObject2.h / 2;
+        return (dx * dx + dy * dy <= (gameObject1.w * gameObject1.w));
+    };
     Util.squareNumber = function (number) {
         return number * number;
     };

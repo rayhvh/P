@@ -1,7 +1,7 @@
 /// <reference path="gameObject.ts" />
 
 abstract class Asteroid extends GameObject{
-    protected speed:number;
+    abstract speed:number;
     private rotate:number;
 
     constructor(x:number, y:number,w:number,h:number, context:CanvasRenderingContext2D){
@@ -9,7 +9,7 @@ abstract class Asteroid extends GameObject{
         this.rotate = 10;
     }
 
-    draw(){
+    protected draw(){
         let centerX = this.w / 2 + this.x;
         let centerY = this.w / 2 + this.y;
 
@@ -17,14 +17,11 @@ abstract class Asteroid extends GameObject{
         this.context.arc(centerX, centerY, this.w, 0, 2 * Math.PI, false);
         this.context.fillStyle = 'green';
         this.context.fill();
-        this.context.lineWidth = 5;
-        this.context.strokeStyle = '#003300';
-        this.context.stroke();
     }
 
-    render(){
-        this.draw();
-    }
+    // public render(){
+    //     this.draw();
+    // }
     abstract move();
 
      //rotating
