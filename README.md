@@ -7,6 +7,7 @@ Af:
 * Bewegende achtergrond
 * Raket beweegt
 * Asteroid beweegt
+* Strategy pattern
 
 #### UML
 
