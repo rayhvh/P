@@ -1,13 +1,18 @@
+/// <reference path="asteroid.ts" />
+
 class Falling extends Asteroid{
     public speed;
     
-    constructor(context:CanvasRenderingContext2D){
-        super(100,100,20,20, context);
-        this.speed = 2;
+    constructor(x:number, y:number,speed:number){
+        super(x,y,20,20);
+        this.speed = speed;
+    }
+    move(){
+        
     }
 
-    move(){
-        this.y++;
-        this.draw();
-    }
+    // move(){
+    //     this.y += this.speed;
+    //     this.drawImage();
+    // }
 }

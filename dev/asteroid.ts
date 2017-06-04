@@ -1,39 +1,26 @@
 /// <reference path="gameObject.ts" />
+/// <reference path="imageObject.ts" />
 
-abstract class Asteroid extends GameObject{
+abstract class Asteroid extends ImageObject{
     abstract speed:number;
     private rotate:number;
+    
+    constructor(x:number, y:number,w:number,h:number){
+        super("images/astroid.png",x,y,w,h);
+        //keep the astroid rotating.
+        //Put point to Center
+        this.sprite.anchor.set(0.5);
+        this.game.app.ticker.add((delta) => this.rotating(delta));
 
-    constructor(x:number, y:number,w:number,h:number, context:CanvasRenderingContext2D){
-        super(x,y,w,h,context);
-        this.rotate = 10;
     }
 
-    protected draw(){
-        let centerX = this.w / 2 + this.x;
-        let centerY = this.w / 2 + this.y;
-
-        this.context.beginPath();
-        this.context.arc(centerX, centerY, this.w, 0, 2 * Math.PI, false);
-        this.context.fillStyle = 'green';
-        this.context.fill();
+    private rotating(delta){
+        
+        this.sprite.rotation += 0.1 * delta;
     }
 
-    // public render(){
-    //     this.draw();
-    // }
     abstract move();
 
-     //rotating
-    drawRect(){
-        this.incrementAngle();
-        this.context.save();                
-        this.context.translate(this.w*4,this.h*4);
-        this.context.rotate(this.convertToRadians(this.rotate));
-        this.context.fillStyle = 'yellow';
-        this.context.fillRect(-this.w/2,-this.h/2,this.w,this.h);         
-        this.context.restore();
-    }
     //needed for rotating
     private incrementAngle() {
         this.rotate++;
@@ -41,6 +28,7 @@ abstract class Asteroid extends GameObject{
             this.rotate = 0;
         }
     }
+
     //needed for rotating 
     // defrees to radians
     private convertToRadians(degree:number) {
