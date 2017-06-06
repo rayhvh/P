@@ -5,7 +5,7 @@
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "target":"es5",
-        "out": "docs/js/main.js"
+        "out": "docs/main.js"
     },
     "exclude": [
         "node_modules",

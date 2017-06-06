@@ -1,22 +1,30 @@
-class Partical extends GameObject{
+class Partical extends PIXI.Graphics{
 
     private graphics:PIXI.Graphics;
     private color:number;
     private opacity:number;
+    private game:Game;
+    private radius:number;
 
-    constructor(x:number, y:number, w:number, h:number, color:number,opacity:number){
-        super(x,y,w,h);
-        this.graphics = new PIXI.Graphics();
+    constructor(x:number, y:number, r:number,color:number,opacity:number){
+        super();
+        this.game = Game.getInstance();
+
+        this.x = x;
+        this.y = y;
+        this.radius = r;
+        
         this.color = color;
         this.opacity = opacity;
+
         this.draw();
     }
 
     draw(){
-        this.graphics.lineStyle(0);
-        this.graphics.beginFill(this.color,this.opacity);
-        this.graphics.drawCircle(this.x, this.y,this.w);
-        this.graphics.endFill();
-        this.game.app.stage.addChild(this.graphics);
+        this.lineStyle(0);
+        this.beginFill(this.color,this.opacity);
+        this.drawCircle(this.x, this.y,this.radius);
+        this.endFill();
+        this.game.app.stage.addChild(this);
     }
 }

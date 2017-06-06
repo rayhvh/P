@@ -1,24 +1,12 @@
-
-
-
 class Game {
     public static instance:Game;
+    public app:PIXI.Application;
+    public timer:number
 
-    // private canvas:HTMLCanvasElement;
-    // public context:CanvasRenderingContext2D;
 
-    // private keyHandling:KeyHandling;
-
-    // private rocket:Rocket;
     private background:Background;
 
     private asteroid:Asteroid;
-
-    // public astroidList:Array<Asteroid> = new Array();
-
-    // private spawner:Spawner;
-
-    public app:PIXI.Application;
 
     public static getInstance(){
         if(!Game.instance){
@@ -32,13 +20,17 @@ class Game {
     //loader
     public loader(){
         this.app = new PIXI.Application(800, 600, {backgroundColor : 0x000000});
+        this.timer = 0;
+        // this.stage = new PIXI.Container();
+        // this.renderer = PIXI.autoDetectRenderer(800, 600);
         document.body.appendChild(this.app.view);
 
         this.background = new Background(2,this.app.renderer.width,this.app.renderer.height);
+
+        var carrotTex = PIXI.Texture.fromImage('images/astroid.png');
         
-        console.log("AAA");
-        this.asteroid = new Falling(100,100,2);
-        console.log(this.app.renderer.width);
+        // this.asteroid = new Falling(100,100,2);
+        // // console.log(this.app.renderer.width);
 
 
         // this.rocket = new Flying(200,300, this.context);
@@ -51,31 +43,18 @@ class Game {
 
         // this.keyHandling = new KeyHandling(this.rocket);
 
-        // requestAnimationFrame(() => this.gameLoop());
-        this.app.ticker.add(function() {
-            console.log("test");
-        });
+        requestAnimationFrame(() => this.gameLoop());
         }
 
 
     gameLoop(){
-        // this.background.move();
-        // console.log("RANDOM: " + Util.random(5,5));
-        // this.context.clearRect(0,0,400,400);
-        // this.background.render();
-        // this.asteroid.move();
+        // this.asteroid.x++;
+        this.background.move();
+        // this.asteroid.x += 2;
+        // console.log(this.asteroid.x);
 
-        // this.rocket.render();
-        // this.rocket.checkCollision(this.asteroid);
-        // this.keyHandling.doAction();
-
-        // this.spawner.update();
-
-
-        // for(let astroid of this.astroidList){
-        //     astroid.move();
-        // }
-
+        this.app.renderer.render(this.app.stage);
+        this.timer++;
         requestAnimationFrame(() => this.gameLoop());
     }
 } 

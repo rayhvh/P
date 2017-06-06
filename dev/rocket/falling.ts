@@ -1,7 +1,7 @@
-/// <reference path="asteroid.ts" />
+/// <reference path="../asteroid.ts" />
 
 class Falling extends Asteroid{
-    public speed;
+    public speed:number;
     
     constructor(x:number, y:number,speed:number){
         super(x,y,20,20);

@@ -1,5 +1,4 @@
-/// <reference path="gameObject.ts" />
-
+/// <reference path="../gameObject.ts" />
 
 abstract class Rocket extends GameObject{
     protected speed:number;

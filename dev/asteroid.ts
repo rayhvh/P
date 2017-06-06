@@ -9,17 +9,17 @@ abstract class Asteroid extends ImageObject{
         super("images/astroid.png",x,y,w,h);
         //keep the astroid rotating.
         //Put point to Center
-        this.sprite.anchor.set(0.5);
-        this.game.app.ticker.add((delta) => this.rotating(delta));
+        // this.sprite.anchor.set(0.5);
+        // this.game.app.ticker.add((delta) => this.rotating(delta));
 
     }
 
-    private rotating(delta){
+    private rotating(delta:any){
         
         this.sprite.rotation += 0.1 * delta;
     }
 
-    abstract move();
+    // abstract move();
 
     //needed for rotating
     private incrementAngle() {

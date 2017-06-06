@@ -1323,58 +1323,6 @@ var Asteroid = (function (_super) {
     };
     return Asteroid;
 }(ImageObject));
-var Falling = (function (_super) {
-    __extends(Falling, _super);
-    function Falling(x, y, speed) {
-        _super.call(this, x, y, 20, 20);
-        this.speed = speed;
-    }
-    Falling.prototype.move = function () {
-    };
-    return Falling;
-}(Asteroid));
-var Rocket = (function (_super) {
-    __extends(Rocket, _super);
-    function Rocket(x, y, context) {
-        _super.call(this, x, y, 30, 60, context);
-        this.context = context;
-    }
-    Rocket.prototype.draw = function () {
-        this.context.fillRect(this.x, this.y, this.w, this.h);
-        this.context.fillStyle = 'yellow';
-        this.context.fill();
-    };
-    Rocket.prototype.checkCollision = function (asteroid) {
-        if (Util.RectCircleColliding(this, asteroid)) {
-            console.log("COLLIDING!!!");
-        }
-    };
-    Rocket.prototype.render = function () {
-        this.draw();
-    };
-    return Rocket;
-}(GameObject));
-var Flying = (function (_super) {
-    __extends(Flying, _super);
-    function Flying(x, y, context) {
-        _super.call(this, x, y, context);
-        this.speed = 2;
-        this.sideSpeed = 3;
-    }
-    Flying.prototype.render = function () {
-        _super.prototype.render.call(this);
-    };
-    Flying.prototype.goLeft = function () {
-        console.log("HIT LEFT");
-        this.x -= this.sideSpeed;
-    };
-    Flying.prototype.goRight = function () {
-        this.x += this.sideSpeed;
-    };
-    Flying.prototype.actionKey = function () { };
-    Flying.prototype.move = function () { };
-    return Flying;
-}(Rocket));
 var KeyHandling = (function () {
     function KeyHandling(rocket) {
         var _this = this;
@@ -1448,7 +1396,7 @@ var Game = (function () {
         this.asteroid = new Falling(100, 100, 2);
         console.log(this.app.renderer.width);
         this.app.ticker.add(function () {
-            console.log("test");
+            this.background.move();
         });
     };
     Game.prototype.gameLoop = function () {
@@ -1569,6 +1517,11 @@ var Background = (function () {
         }
     }
     Background.prototype.move = function () {
+        console.log("MOVINGGGGGG");
+        for (var _i = 0, _a = this.stars; _i < _a.length; _i++) {
+            var star = _a[_i];
+            star.move();
+        }
     };
     Background.prototype.setSpeed = function (newSpeed) {
         this.speed = newSpeed;
@@ -1582,8 +1535,67 @@ var Star = (function (_super) {
         this.z = z;
     }
     Star.prototype.move = function () {
+        console.log("MOVING");
         this.y = this.y + this.z;
     };
     return Star;
 }(Partical));
+var Falling = (function (_super) {
+    __extends(Falling, _super);
+    function Falling(x, y, speed) {
+        _super.call(this, x, y, 20, 20);
+        this.speed = speed;
+    }
+    Falling.prototype.move = function () {
+    };
+    return Falling;
+}(Asteroid));
+var rocket;
+(function (rocket) {
+    var Rocket = (function (_super) {
+        __extends(Rocket, _super);
+        function Rocket(x, y, context) {
+            _super.call(this, x, y, 30, 60, context);
+            this.context = context;
+        }
+        Rocket.prototype.draw = function () {
+            this.context.fillRect(this.x, this.y, this.w, this.h);
+            this.context.fillStyle = 'yellow';
+            this.context.fill();
+        };
+        Rocket.prototype.checkCollision = function (asteroid) {
+            if (Util.RectCircleColliding(this, asteroid)) {
+                console.log("COLLIDING!!!");
+            }
+        };
+        Rocket.prototype.render = function () {
+            this.draw();
+        };
+        return Rocket;
+    }(GameObject));
+})(rocket || (rocket = {}));
+var rocket;
+(function (rocket) {
+    var Flying = (function (_super) {
+        __extends(Flying, _super);
+        function Flying(x, y, context) {
+            _super.call(this, x, y, context);
+            this.speed = 2;
+            this.sideSpeed = 3;
+        }
+        Flying.prototype.render = function () {
+            _super.prototype.render.call(this);
+        };
+        Flying.prototype.goLeft = function () {
+            console.log("HIT LEFT");
+            this.x -= this.sideSpeed;
+        };
+        Flying.prototype.goRight = function () {
+            this.x += this.sideSpeed;
+        };
+        Flying.prototype.actionKey = function () { };
+        Flying.prototype.move = function () { };
+        return Flying;
+    }(Rocket));
+})(rocket || (rocket = {}));
 //# sourceMappingURL=main.js.map
