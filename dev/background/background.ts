@@ -10,7 +10,7 @@ class Background{
         // super(0,0,appWidth,appHeight);
         //spawn 20 stars
         this.game = Game.getInstance();
-        for(let i = 0; i < 10; i ++){
+        for(let i = 0; i < 30; i ++){
             let x = Util.random(10,this.game.app.renderer.width -10);
             let y = Util.random(10,this.game.app.renderer.height -10);
             let z = Util.randomDecimal(0.1,0.6);
@@ -20,15 +20,11 @@ class Background{
         }
     }
 
-    // move(){
-    //     //reset 
-    //     console.log("MOVING");
-    //     if(this.y >= 400){
-    //         this.y = 0;
-    //     }else{
-    //         this.y += this.speed;
-    //     }
-    // }
+    move(){
+        // for(){
+            
+        // }
+    }
 
     setSpeed(newSpeed:number){
         this.speed = newSpeed;

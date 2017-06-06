@@ -51,8 +51,11 @@ class Game {
 
         // this.keyHandling = new KeyHandling(this.rocket);
 
-        requestAnimationFrame(() => this.gameLoop());
-    }
+        // requestAnimationFrame(() => this.gameLoop());
+        this.app.ticker.add(function() {
+            console.log("test");
+        });
+        }
 
 
     gameLoop(){

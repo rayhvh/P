@@ -2,38 +2,13 @@
     "compilerOptions": {
         "sourceMap":  true,
         "removeComments": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
         "target":"es5",
-        "out": "docs/main.js",
-        // "noImplicitAny": true,
-        "forceConsistentCasingInFileNames": true
+        "out": "docs/js/main.js"
     },
     "exclude": [
         "node_modules",
-        "dist",
-        "js"
+        "docs"
     ]
-    // "files": [
-    //     "dev/d.ts/pixi.js.d.ts",
-    //     "dev/d.ts/pixi.js-tests.ts"
-    // ]
 }
-
-// {
-//     "compilerOptions": {
-//         "module": "commonjs",
-//         "lib": [
-//             "es6",
-//             "dom"
-//         ],
-//         "noImplicitAny": true,
-//         "noImplicitThis": true,
-//         "strictNullChecks": false,
-//         "types": [],
-//         "noEmit": true,
-//         "forceConsistentCasingInFileNames": true
-//     },
-//     "files": [
-//         "pixi.js.d.ts",
-//         "pixi.js-tests.ts"
-//     ]
-// } 
