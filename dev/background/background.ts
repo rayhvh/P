@@ -29,7 +29,7 @@ class Background{
     private starSpawner(){
         //add star after every quarter of a second.
         if(Util.timer(this.game.timer,0.2)){
-            this.addStars( Util.random(10,this.game.app.renderer.width),
+            this.addStars( Util.random(10,this.game.app.screen.width),
             0);
         }
     }

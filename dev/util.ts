@@ -29,20 +29,41 @@ class Util{
         return Math.round(value * multiplier) / multiplier;
     }
 
-    public static  RectCircleColliding(gameObject1:GameObject,gameObject2:GameObject){
-        var distX = Math.abs(gameObject1.x - gameObject2.x-gameObject2.w/2);
-        var distY = Math.abs(gameObject1.y - gameObject2.y-gameObject2.h/2);
+    public static collidingRects (g:PIXI.Container,g2:PIXI.Container){
+        if (g.x < g2.x + g2.width &&
+            g.x + g.width > g2.x &&
+            g.y < g2.y + g2.height &&
+            g.height + g.y > g2.y) {
+                // collision detected!
+                return true;
+            }
 
-        if (distX > (gameObject2.w/2 + gameObject1.w)) { return false; }
-        if (distY > (gameObject2.h/2 + gameObject1.w)) { return false; }
+    //     if (g.x + g.width > g2.x){        
+    //         if (g.x < g2.x + g2.width){            
+    //             if (g.y + g.height > g2.y){                
+    //                 if (g.y < g2.y + g2.height){                    
+    //                     return true; 
+    //                 }
+    //             }
+    //         }   
+    //  }   
+        return false;
+    }
 
-        if (distX <= (gameObject2.w/2)) { return true; } 
-        if (distY <= (gameObject2.h/2)) { return true; }
+    public static  RectCircleColliding(gameObject1:PIXI.Container,gameObject2:PIXI.Container){
+        var distX = Math.abs(gameObject1.x - gameObject2.x-gameObject2.width/2);
+        var distY = Math.abs(gameObject1.y - gameObject2.y-gameObject2.height/2);
 
-        var dx=distX-gameObject2.w/2;
-        var dy=distY-gameObject2.h/2;
+        if (distX > (gameObject2.width/2 + gameObject1.width)) { return false; }
+        if (distY > (gameObject2.height/2 + gameObject1.width)) { return false; }
+
+        if (distX <= (gameObject2.width/2)) { return true; } 
+        if (distY <= (gameObject2.height/2)) { return true; }
+
+        var dx=distX-gameObject2.width/2;
+        var dy=distY-gameObject2.height/2;
         
-        return (dx*dx+dy*dy<=(gameObject1.w*gameObject1.w));
+        return (dx*dx+dy*dy<=(gameObject1.width*gameObject1.width));
     }
 
     public static squareNumber(number:number):number{

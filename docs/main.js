@@ -63,10 +63,11 @@ var Game = (function () {
         this.timer = 0;
         this.background = new Background(2, this.app.renderer.width, this.app.renderer.height);
         this.asteroids = new Array();
+        console.log(this.app.screen.width);
         for (var i = 0; i < 10; i++) {
-            this.asteroids.push(new Falling(100, 50, 2));
+            this.asteroids.push(new Falling(Util.random(0, this.app.screen.width), 50));
         }
-        this.asteroid = new Falling(200, 50, 2);
+        this.asteroid = new Falling(Util.random(0, this.app.screen.width), 50);
         this.rocket = new Flying(300, 300);
         this.keyHandling = new KeyHandling();
         this.keyHandling.subscribe(this.rocket);
@@ -74,12 +75,18 @@ var Game = (function () {
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
+        for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
+            var astroid = _a[_i];
+            if (Util.collidingRects(astroid, this.rocket)) {
+                console.log("Hitting");
+            }
+        }
         this.background.move();
         this.asteroid.move();
         this.rocket.reRender();
         this.rocket.move();
-        for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
-            var asteroid = _a[_i];
+        for (var _b = 0, _c = this.asteroids; _b < _c.length; _b++) {
+            var asteroid = _c[_b];
             asteroid.move();
         }
         this.app.renderer.render(this.app.stage);
@@ -155,24 +162,33 @@ var Util = (function () {
         var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
     };
+    Util.collidingRects = function (g, g2) {
+        if (g.x < g2.x + g2.width &&
+            g.x + g.width > g2.x &&
+            g.y < g2.y + g2.height &&
+            g.height + g.y > g2.y) {
+            return true;
+        }
+        return false;
+    };
     Util.RectCircleColliding = function (gameObject1, gameObject2) {
-        var distX = Math.abs(gameObject1.x - gameObject2.x - gameObject2.w / 2);
-        var distY = Math.abs(gameObject1.y - gameObject2.y - gameObject2.h / 2);
-        if (distX > (gameObject2.w / 2 + gameObject1.w)) {
+        var distX = Math.abs(gameObject1.x - gameObject2.x - gameObject2.width / 2);
+        var distY = Math.abs(gameObject1.y - gameObject2.y - gameObject2.height / 2);
+        if (distX > (gameObject2.width / 2 + gameObject1.width)) {
             return false;
         }
-        if (distY > (gameObject2.h / 2 + gameObject1.w)) {
+        if (distY > (gameObject2.height / 2 + gameObject1.width)) {
             return false;
         }
-        if (distX <= (gameObject2.w / 2)) {
+        if (distX <= (gameObject2.width / 2)) {
             return true;
         }
-        if (distY <= (gameObject2.h / 2)) {
+        if (distY <= (gameObject2.height / 2)) {
             return true;
         }
-        var dx = distX - gameObject2.w / 2;
-        var dy = distY - gameObject2.h / 2;
-        return (dx * dx + dy * dy <= (gameObject1.w * gameObject1.w));
+        var dx = distX - gameObject2.width / 2;
+        var dy = distY - gameObject2.height / 2;
+        return (dx * dx + dy * dy <= (gameObject1.width * gameObject1.width));
     };
     Util.squareNumber = function (number) {
         return number * number;
@@ -188,19 +204,17 @@ var Asteroid = (function (_super) {
 }(ImageObject));
 var Falling = (function (_super) {
     __extends(Falling, _super);
-    function Falling(x, y, speed) {
-        var _this = this;
+    function Falling(x, y) {
         _super.call(this, x, y, 100, 100);
-        this.speed = speed;
-        this.anchor.set(0.5);
-        this.game.app.ticker.add(function (delta) { return _this.rotating(delta); });
+        this.speed = Util.randomDecimal(0.5, 1);
     }
     Falling.prototype.rotating = function (delta) {
+        this.anchor.set(0.5);
         this.rotation += 0.1 * delta;
     };
     Falling.prototype.move = function () {
         _super.prototype.move.call(this);
-        this.x++;
+        this.y += this.speed;
     };
     return Falling;
 }(Asteroid));
@@ -241,7 +255,7 @@ var Background = (function () {
     };
     Background.prototype.starSpawner = function () {
         if (Util.timer(this.game.timer, 0.2)) {
-            this.addStars(Util.random(10, this.game.app.renderer.width), 0);
+            this.addStars(Util.random(10, this.game.app.screen.width), 0);
         }
     };
     Background.prototype.starRemover = function () {
@@ -372,8 +386,7 @@ var Flying = (function (_super) {
         _super.call(this, x, y);
         this.movingLeft = false;
         this.movingRight = false;
-        this.speed = 2;
-        this.sideSpeed = 3;
+        this.sideSpeed = 3.5;
     }
     Flying.prototype.notify = function (keyHit) {
         console.log(keyHit);

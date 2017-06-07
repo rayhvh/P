@@ -36,10 +36,11 @@ class Game {
 
         // this.asteroid = new Falling(50,50,2);
         this.asteroids = new Array<Asteroid>();
+        console.log(this.app.screen.width);
         for(let i = 0; i<10;i++){
-            this.asteroids.push(new Falling(100,50,2));
+            this.asteroids.push(new Falling(Util.random(0, this.app.screen.width),50));
         }
-        this.asteroid = new Falling(200,50,2);
+        this.asteroid = new Falling(Util.random(0, this.app.screen.width),50);
         this.rocket = new Flying(300,300);
 
         this.keyHandling = new KeyHandling();
@@ -50,6 +51,12 @@ class Game {
 
 
     gameLoop(){
+        for(let astroid of this.asteroids){
+            if(Util.collidingRects(astroid,this.rocket)){
+                console.log("Hitting");
+            }
+        }
+        
         this.background.move();
         this.asteroid.move();
         this.rocket.reRender();

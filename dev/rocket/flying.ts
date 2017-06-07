@@ -2,14 +2,14 @@
 /// <reference path="../keyhandling/keyboard.ts" />
 
 class Flying extends Rocket{
-    movingLeft:boolean = false;
-    movingRight:boolean = false;
+    private movingLeft:boolean = false;
+    private movingRight:boolean = false;
+
+    private sideSpeed:number;
 
     constructor(x:number,y:number){
         super(x,y);
-
-        this.speed = 2;
-        this.sideSpeed = 3;
+        this.sideSpeed = 3.5;
     }
     notify(keyHit:Array<KeyBoard>):void{
         console.log(keyHit);
