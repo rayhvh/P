@@ -1481,6 +1481,12 @@ var Util = (function () {
     Util.randomDecimal = function (min, max) {
         return this.round(((Math.random() * (max - min)) + min), 1);
     };
+    Util.hitBottom = function (y, bottom) {
+        if (y >= bottom) {
+            return true;
+        }
+        return false;
+    };
     Util.round = function (value, precision) {
         var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
@@ -1513,8 +1519,8 @@ var Background = (function () {
     function Background(speed, appWidth, appHeight) {
         this.stars = [];
         this.game = Game.getInstance();
-        for (var i = 0; i < 30; i++) {
-            this.addStars(Util.random(10, this.game.app.renderer.width - 10), Util.random(10, this.game.app.renderer.height - 10));
+        for (var i = 0; i < 40; i++) {
+            this.addStars(Util.random(10, this.game.app.renderer.width), Util.random(10, this.game.app.renderer.height - 10));
         }
         console.log("loaded");
     }
@@ -1523,20 +1529,23 @@ var Background = (function () {
         var r = 5;
         this.stars.push(new Star(x, y, z, r));
     };
-    Background.prototype.move = function () {
-        this.starSpawner();
-        for (var _i = 0, _a = this.stars; _i < _a.length; _i++) {
-            var star = _a[_i];
-            star.move();
-        }
-    };
     Background.prototype.starSpawner = function () {
         if (Util.timer(this.game.timer, 0.2)) {
-            this.addStars(Util.random(10, this.game.app.renderer.width - 10), 0);
+            this.addStars(Util.random(10, this.game.app.renderer.width), 0);
         }
     };
-    Background.prototype.setSpeed = function (newSpeed) {
-        this.speed = newSpeed;
+    Background.prototype.starRemover = function () {
+    };
+    Background.prototype.move = function () {
+        this.starSpawner();
+        for (var i = 0; i < this.stars.length; i++) {
+            var star = this.stars[i];
+            if (Util.hitBottom(star.y, this.game.app.renderer.height)) {
+                console.log("REMOVE - " + star.y);
+                this.stars.splice(i, 1);
+            }
+            star.move();
+        }
     };
     return Background;
 }());

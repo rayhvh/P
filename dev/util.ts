@@ -17,6 +17,13 @@ class Util{
         return this.round(((Math.random()*(max-min))+min),1);
     }
 
+    public static hitBottom(y:number, bottom:number){
+        if(y >= bottom){
+            return true
+        }
+        return false;
+    }
+
     public static round(value:number, precision:number) {
         var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;

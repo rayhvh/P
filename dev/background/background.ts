@@ -11,9 +11,9 @@ class Background{
         //spawn 20 stars
         this.game = Game.getInstance();
 
-        for(let i = 0; i < 30; i ++){
+        for(let i = 0; i < 40; i ++){
             this.addStars(
-                Util.random(10,this.game.app.renderer.width -10),
+                Util.random(10,this.game.app.renderer.width),
                 Util.random(10,this.game.app.renderer.height -10)
             );
         }
@@ -26,23 +26,29 @@ class Background{
         this.stars.push(new Star(x,y,z,r));
     }
 
-    move(){
-        this.starSpawner();
-        for(let star of this.stars){
-            star.move();
-        }
-    }
-
-    starSpawner(){
-        // console.log(this.game.timer)
+    private starSpawner(){
+        //add star after every quarter of a second.
         if(Util.timer(this.game.timer,0.2)){
-            this.addStars( Util.random(10,this.game.app.renderer.width -10),
+            this.addStars( Util.random(10,this.game.app.renderer.width),
             0);
         }
     }
 
-    setSpeed(newSpeed:number){
-        this.speed = newSpeed;
+    private starRemover(){
+
     }
 
+     move(){
+        this.starSpawner();
+        for(let i = 0; i < this.stars.length; i++){
+
+            let star = this.stars[i];
+
+            if(Util.hitBottom(star.y,this.game.app.renderer.height)){
+                console.log("REMOVE - " + star.y);
+                this.stars.splice(i,1);
+            }
+            star.move();
+        }
+    }
 }
