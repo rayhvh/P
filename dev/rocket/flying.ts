@@ -1,5 +1,5 @@
 /// <reference path="rocket.ts" />
-/// <reference path="../keyboard.ts" />
+/// <reference path="../keyhandling/keyboard.ts" />
 
 class Flying extends Rocket{
     movingLeft:boolean = false;
@@ -18,14 +18,13 @@ class Flying extends Rocket{
         //if the Array is bigger then 1 
         if(keyHit.length <= 1){
             //look for the key the hits.
-            if(keyHit[0] == KeyBoard.LEFT){
+            if(keyHit[0] == KeyBoard.LEFT || keyHit[0] == KeyBoard.A){
                 this.movingLeft = true;
                 this.movingRight = false;
-            }else if(keyHit[0] == KeyBoard.RIGHT){
+            }else if(keyHit[0] == KeyBoard.RIGHT || keyHit[0] == KeyBoard.D){
                 this.movingRight = true;
                 this.movingLeft = false;
             }else{
-                console.log("RELEASE");
                 this.movingLeft = false;
                 this.movingRight = false;
             }
@@ -33,14 +32,11 @@ class Flying extends Rocket{
     }
     
     goLeft(){
-        console.log("HIT LEFT");
         this.x -= this.sideSpeed;
     }
     goRight(){
-        console.log("HIT RIGHT");
         this.x += this.sideSpeed;
     }
-    actionKey(){}
 
     move(){
         if(this.movingLeft){

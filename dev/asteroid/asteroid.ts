@@ -1,5 +1,5 @@
-/// <reference path="gameObject.ts" />
-/// <reference path="imageObject.ts" />
+/// <reference path="../gameObject.ts" />
+/// <reference path="../imageObject.ts" />
 
 abstract class Asteroid extends ImageObject{
     abstract speed:number;

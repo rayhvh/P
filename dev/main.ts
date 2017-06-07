@@ -1,3 +1,5 @@
+/// <reference path="keyhandling/keyboard.ts" />
+
 class Game {
     public static instance:Game;
     public app:PIXI.Application;

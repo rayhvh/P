@@ -10,7 +10,6 @@ abstract class Rocket extends ImageObject implements Observer{
     abstract notify(keyHit:Array<KeyBoard>):void;
     abstract goLeft():void;
     abstract goRight():void;
-    abstract actionKey():void;
     
     abstract move():void;
 }

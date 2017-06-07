@@ -30,23 +30,14 @@ class KeyHandling implements Observable{
         }
     }
 
-    // doAction(){
-    //     if(this.left){
-    //         this.rocket.goLeft();
-    //     }
-
-    //     if(this.right){
-    //         this.rocket.goRight();
-    //     }
-    // }
-
     public hitFunction(){
         for(let o of this.observers){
             o.notify(this.keyHit);
         }
         // return this.keyHit;
     }
-    //checking if the key exists
+
+    //add a key but first check if the key is already in the array
     addKey(key:KeyBoard){
         for(let k of this.keyHit){
             if(k == key){
@@ -58,6 +49,7 @@ class KeyHandling implements Observable{
         return true;
     }
 
+    //remove a key.
     removeKey(key:KeyBoard){
         for(let i = 0; i < this.keyHit.length; i++){
             if(this.keyHit[i] == key){
@@ -70,22 +62,22 @@ class KeyHandling implements Observable{
 
          switch(e.keyCode){
                 case KeyBoard.LEFT: 
-                    console.log("DOWN");
-                    // this.left = true;
                     this.addKey(KeyBoard.LEFT);
                     this.hitFunction();
                     break;
-                // case KeyBoard.A:
-                //     this.left = true;
-                //     break;
+                case KeyBoard.A:
+                    this.left = true;
+                    this.addKey(KeyBoard.A);
+                    this.hitFunction();
+                    break;
                 case KeyBoard.RIGHT:
-                    // this.right = true;
                     this.addKey(KeyBoard.RIGHT);
                     this.hitFunction();
                     break;
-                // case KeyBoard.D:
-                //     this.right = true;
-                //     break;
+                case KeyBoard.D:
+                    this.addKey(KeyBoard.D);
+                    this.hitFunction();
+                    break;
 
                 default:
                     console.log("OTHER KEY" + e.keyCode);
@@ -98,12 +90,18 @@ class KeyHandling implements Observable{
                 case KeyBoard.LEFT:
                     this.removeKey(KeyBoard.LEFT); 
                     this.hitFunction();
-                    // this.left = false;
                     break;
                 case KeyBoard.RIGHT:
                     this.removeKey(KeyBoard.RIGHT);
                     this.hitFunction();
-                    // this.right = false;
+                    break;
+                case KeyBoard.A:
+                    this.removeKey(KeyBoard.A);
+                    this.hitFunction();
+                    break;
+                case KeyBoard.D:
+                    this.removeKey(KeyBoard.D);
+                    this.hitFunction();
                     break;
 
                 default:
