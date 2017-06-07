@@ -18,6 +18,7 @@ class Partical extends PIXI.Graphics{
         this.opacity = opacity;
 
         this.draw();
+        // this.displyGr
     }
 
     draw(){

@@ -1,33 +1,16 @@
-/// <reference path="../gameObject.ts" />
+/// <reference path="../imageObject.ts" />
 
-abstract class Rocket extends GameObject{
+abstract class Rocket extends ImageObject implements Observer{
     protected speed:number;
     protected sideSpeed:number;
 
-    constructor(x:number, y:number, context:CanvasRenderingContext2D){
-        super(x,y,30,60, context);
-        this.context = context;
+    constructor(x:number, y:number){
+        super("images/rocket.png",x,y,40,60);
     }
-
-    private draw():void{
-        this.context.fillRect(this.x,this.y,this.w,this.h);
-        this.context.fillStyle = 'yellow';
-        this.context.fill();
-    }
-
-    public checkCollision(asteroid:Asteroid){
-        if(Util.RectCircleColliding(this,asteroid)){
-            console.log("COLLIDING!!!");
-        }
-    }
-
-    public render():void{
-        this.draw();
-    }
-
-    abstract goLeft();
-    abstract goRight();
-    abstract actionKey();
+    abstract notify(keyHit:Array<KeyBoard>):void;
+    abstract goLeft():void;
+    abstract goRight():void;
+    abstract actionKey():void;
     
     abstract move():void;
 }

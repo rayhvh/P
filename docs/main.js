@@ -1289,65 +1289,105 @@ var GameObject = (function () {
 var ImageObject = (function (_super) {
     __extends(ImageObject, _super);
     function ImageObject(image, x, y, w, h) {
-        _super.call(this, x, y, w, h);
-        this.image = image;
+        _super.call(this, PIXI.Texture.fromImage(image));
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+        this.game = Game.getInstance();
         this.create();
     }
     ImageObject.prototype.create = function () {
-        this.sprite = PIXI.Sprite.fromImage(this.image);
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
-        this.game.app.stage.addChild(this.sprite);
+        this.game.app.stage.addChild(this);
+    };
+    ImageObject.prototype.remove = function () {
+        this.game.app.stage.removeChild(this);
+    };
+    ImageObject.prototype.reRender = function () {
+        this.remove();
+        this.create();
+    };
+    ImageObject.prototype.move = function () {
+        this.reRender();
     };
     return ImageObject;
-}(GameObject));
+}(PIXI.Sprite));
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(x, y, w, h) {
         _super.call(this, "images/astroid.png", x, y, w, h);
     }
-    Asteroid.prototype.rotating = function (delta) {
-        this.sprite.rotation += 0.1 * delta;
-    };
-    Asteroid.prototype.incrementAngle = function () {
-        this.rotate++;
-        if (this.rotate > 360) {
-            this.rotate = 0;
-        }
-    };
-    Asteroid.prototype.convertToRadians = function (degree) {
-        return degree * (Math.PI / 180);
-    };
     return Asteroid;
 }(ImageObject));
-var KeyHandling = (function () {
-    function KeyHandling(rocket) {
+var Falling = (function (_super) {
+    __extends(Falling, _super);
+    function Falling(x, y, speed) {
         var _this = this;
-        this.rocket = rocket;
-        document.addEventListener("keydown", function (e) { return _this.keyDown(e); });
-        document.addEventListener("keyup", function (e) { return _this.keyUp(e); });
+        _super.call(this, x, y, 100, 100);
+        this.speed = speed;
+        this.anchor.set(0.5);
+        this.game.app.ticker.add(function (delta) { return _this.rotating(delta); });
     }
-    KeyHandling.prototype.doAction = function () {
-        if (this.left) {
-            this.rocket.goLeft();
+    Falling.prototype.rotating = function (delta) {
+        this.rotation += 0.1 * delta;
+    };
+    Falling.prototype.move = function () {
+        _super.prototype.move.call(this);
+        this.x++;
+    };
+    return Falling;
+}(Asteroid));
+var KeyHandling = (function () {
+    function KeyHandling() {
+        var _this = this;
+        window.addEventListener("keydown", function (e) { return _this.keyDown(e); });
+        window.addEventListener("keyup", function (e) { return _this.keyUp(e); });
+        this.keyHit = new Array();
+        this.observers = new Array();
+    }
+    KeyHandling.prototype.subscribe = function (o) {
+        this.observers.push(o);
+    };
+    KeyHandling.prototype.unsubscribe = function (o) {
+        for (var i = 0; i < this.observers.length; i++) {
+            if (this.observers[i] == o) {
+                this.observers.splice(i, 1);
+            }
         }
-        if (this.right) {
-            this.rocket.goRight();
+    };
+    KeyHandling.prototype.hitFunction = function () {
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var o = _a[_i];
+            o.notify(this.keyHit);
+        }
+    };
+    KeyHandling.prototype.addKey = function (key) {
+        for (var _i = 0, _a = this.keyHit; _i < _a.length; _i++) {
+            var k = _a[_i];
+            if (k == key) {
+                return true;
+            }
+        }
+        this.keyHit.push(key);
+        return true;
+    };
+    KeyHandling.prototype.removeKey = function (key) {
+        for (var i = 0; i < this.keyHit.length; i++) {
+            if (this.keyHit[i] == key) {
+                this.keyHit.splice(i, 1);
+            }
         }
     };
     KeyHandling.prototype.keyDown = function (e) {
         switch (e.keyCode) {
-            case 37:
-                this.left = true;
+            case KeyBoard.LEFT:
+                console.log("DOWN");
+                this.addKey(KeyBoard.LEFT);
+                this.hitFunction();
                 break;
-            case 65:
-                this.left = true;
-                break;
-            case 39:
-                this.right = true;
-                break;
-            case 68:
-                this.right = true;
+            case KeyBoard.RIGHT:
+                this.addKey(KeyBoard.RIGHT);
+                this.hitFunction();
                 break;
             default:
                 console.log("OTHER KEY" + e.keyCode);
@@ -1356,17 +1396,13 @@ var KeyHandling = (function () {
     };
     KeyHandling.prototype.keyUp = function (e) {
         switch (e.keyCode) {
-            case 37:
-                this.left = false;
+            case KeyBoard.LEFT:
+                this.removeKey(KeyBoard.LEFT);
+                this.hitFunction();
                 break;
-            case 65:
-                this.left = false;
-                break;
-            case 39:
-                this.right = false;
-                break;
-            case 68:
-                this.right = false;
+            case KeyBoard.RIGHT:
+                this.removeKey(KeyBoard.RIGHT);
+                this.hitFunction();
                 break;
             default:
                 console.log("OTHER KEY" + e.keyCode);
@@ -1375,6 +1411,13 @@ var KeyHandling = (function () {
     };
     return KeyHandling;
 }());
+var KeyBoard;
+(function (KeyBoard) {
+    KeyBoard[KeyBoard["LEFT"] = 37] = "LEFT";
+    KeyBoard[KeyBoard["RIGHT"] = 39] = "RIGHT";
+    KeyBoard[KeyBoard["A"] = 65] = "A";
+    KeyBoard[KeyBoard["D"] = 68] = "D";
+})(KeyBoard || (KeyBoard = {}));
 var Game = (function () {
     function Game() {
     }
@@ -1388,15 +1431,29 @@ var Game = (function () {
     Game.prototype.loader = function () {
         var _this = this;
         this.app = new PIXI.Application(800, 600, { backgroundColor: 0x000000 });
-        this.timer = 0;
         document.body.appendChild(this.app.view);
+        this.timer = 0;
         this.background = new Background(2, this.app.renderer.width, this.app.renderer.height);
-        var carrotTex = PIXI.Texture.fromImage('images/astroid.png');
+        this.asteroids = new Array();
+        for (var i = 0; i < 10; i++) {
+            this.asteroids.push(new Falling(100, 50, 2));
+        }
+        this.asteroid = new Falling(200, 50, 2);
+        this.rocket = new Flying(300, 300);
+        this.keyHandling = new KeyHandling();
+        this.keyHandling.subscribe(this.rocket);
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
         this.background.move();
+        this.asteroid.move();
+        this.rocket.reRender();
+        this.rocket.move();
+        for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
+            var asteroid = _a[_i];
+            asteroid.move();
+        }
         this.app.renderer.render(this.app.stage);
         this.timer++;
         requestAnimationFrame(function () { return _this.gameLoop(); });
@@ -1541,7 +1598,6 @@ var Background = (function () {
         for (var i = 0; i < this.stars.length; i++) {
             var star = this.stars[i];
             if (Util.hitBottom(star.y, this.game.app.renderer.height)) {
-                console.log("REMOVE - " + star.y);
                 this.stars.splice(i, 1);
             }
             star.move();
@@ -1560,56 +1616,57 @@ var Star = (function (_super) {
     };
     return Star;
 }(Partical));
-var Falling = (function (_super) {
-    __extends(Falling, _super);
-    function Falling(x, y, speed) {
-        _super.call(this, x, y, 20, 20);
-        this.speed = speed;
-    }
-    Falling.prototype.move = function () {
-    };
-    return Falling;
-}(Asteroid));
 var Rocket = (function (_super) {
     __extends(Rocket, _super);
-    function Rocket(x, y, context) {
-        _super.call(this, x, y, 30, 60, context);
-        this.context = context;
+    function Rocket(x, y) {
+        _super.call(this, "images/rocket.png", x, y, 40, 60);
     }
-    Rocket.prototype.draw = function () {
-        this.context.fillRect(this.x, this.y, this.w, this.h);
-        this.context.fillStyle = 'yellow';
-        this.context.fill();
-    };
-    Rocket.prototype.checkCollision = function (asteroid) {
-        if (Util.RectCircleColliding(this, asteroid)) {
-            console.log("COLLIDING!!!");
-        }
-    };
-    Rocket.prototype.render = function () {
-        this.draw();
-    };
     return Rocket;
-}(GameObject));
+}(ImageObject));
 var Flying = (function (_super) {
     __extends(Flying, _super);
-    function Flying(x, y, context) {
-        _super.call(this, x, y, context);
+    function Flying(x, y) {
+        _super.call(this, x, y);
+        this.movingLeft = false;
+        this.movingRight = false;
         this.speed = 2;
         this.sideSpeed = 3;
     }
-    Flying.prototype.render = function () {
-        _super.prototype.render.call(this);
+    Flying.prototype.notify = function (keyHit) {
+        console.log(keyHit);
+        if (keyHit.length <= 1) {
+            if (keyHit[0] == KeyBoard.LEFT) {
+                this.movingLeft = true;
+                this.movingRight = false;
+            }
+            else if (keyHit[0] == KeyBoard.RIGHT) {
+                this.movingRight = true;
+                this.movingLeft = false;
+            }
+            else {
+                console.log("RELEASE");
+                this.movingLeft = false;
+                this.movingRight = false;
+            }
+        }
     };
     Flying.prototype.goLeft = function () {
         console.log("HIT LEFT");
         this.x -= this.sideSpeed;
     };
     Flying.prototype.goRight = function () {
+        console.log("HIT RIGHT");
         this.x += this.sideSpeed;
     };
     Flying.prototype.actionKey = function () { };
-    Flying.prototype.move = function () { };
+    Flying.prototype.move = function () {
+        if (this.movingLeft) {
+            this.goLeft();
+        }
+        else if (this.movingRight) {
+            this.goRight();
+        }
+    };
     return Flying;
 }(Rocket));
 var Standing = (function (_super) {

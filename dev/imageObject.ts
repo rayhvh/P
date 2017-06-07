@@ -1,19 +1,38 @@
 /// <reference path="gameObject.ts" />
 
-class ImageObject extends GameObject{
-    public image:string;
-    public sprite:PIXI.Sprite;
+abstract class ImageObject extends PIXI.Sprite{
 
-    constructor(image:string,x:number, y:number, w:number, h:number){
-        super(x,y,w,h);
-        this.image = image;
+    protected game:Game;
+
+    constructor(image:string, x:number, y:number, w:number, h:number){
+        super(PIXI.Texture.fromImage(image));
+
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+
+        this.game = Game.getInstance();
+
         this.create();
     }
 
     private create(){
-        this.sprite = PIXI.Sprite.fromImage(this.image);
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
-        this.game.app.stage.addChild(this.sprite);
+        this.game.app.stage.addChild(this);
+    }
+
+    private remove(){
+        this.game.app.stage.removeChild(this);
+    }
+
+    public reRender(){
+        this.remove();
+        this.create();
+    }
+
+    //FIND A GOOD WAY TO DO THIS.
+    public move(){
+        this.reRender();
+
     }
 }
