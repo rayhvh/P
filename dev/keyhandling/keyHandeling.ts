@@ -1,17 +1,8 @@
 class KeyHandling implements Observable{
-    // private goLeft:Function;
-    // private goRight:Function; 
-    private rocket:Rocket;
-    // private holdingKeys
-    private left:Boolean;
-    private right:Boolean;
-
     public observers:Array<Observer>;
     private keyHit:Array<KeyBoard>;
 
     constructor(){
-        // this.rocket = rocket;
-
         window.addEventListener("keydown", (e)=>this.keyDown(e));
         window.addEventListener("keyup", (e)=>this.keyUp(e));
         this.keyHit = new Array<KeyBoard>();
@@ -34,7 +25,6 @@ class KeyHandling implements Observable{
         for(let o of this.observers){
             o.notify(this.keyHit);
         }
-        // return this.keyHit;
     }
 
     //add a key but first check if the key is already in the array
@@ -58,59 +48,33 @@ class KeyHandling implements Observable{
         }
     }
 
-    private keyDown(e:KeyboardEvent){
-
-         switch(e.keyCode){
-                case KeyBoard.LEFT: 
-                    this.addKey(KeyBoard.LEFT);
-                    this.hitFunction();
-                    break;
-                case KeyBoard.A:
-                    this.left = true;
-                    this.addKey(KeyBoard.A);
-                    this.hitFunction();
-                    break;
+    private checkKey(e:KeyboardEvent):KeyBoard{
+        switch(e.keyCode){
+                case KeyBoard.LEFT:
+                    return KeyBoard.LEFT
                 case KeyBoard.RIGHT:
-                    this.addKey(KeyBoard.RIGHT);
-                    this.hitFunction();
-                    break;
+                    return KeyBoard.RIGHT
+                case KeyBoard.A:
+                    return KeyBoard.A
                 case KeyBoard.D:
-                    this.addKey(KeyBoard.D);
-                    this.hitFunction();
-                    break;
+                   return KeyBoard.D
 
                 default:
                     console.log("OTHER KEY" + e.keyCode);
                     break;
             }
+        return null;
+    }
+
+    private keyDown(e:KeyboardEvent){
+        let keyBoard:KeyBoard = this.checkKey(e);
+        this.addKey(keyBoard);
+        this.hitFunction();
     }
 
     private keyUp(e:KeyboardEvent){
-         switch(e.keyCode){
-                case KeyBoard.LEFT:
-                    this.removeKey(KeyBoard.LEFT); 
-                    this.hitFunction();
-                    break;
-                case KeyBoard.RIGHT:
-                    this.removeKey(KeyBoard.RIGHT);
-                    this.hitFunction();
-                    break;
-                case KeyBoard.A:
-                    this.removeKey(KeyBoard.A);
-                    this.hitFunction();
-                    break;
-                case KeyBoard.D:
-                    this.removeKey(KeyBoard.D);
-                    this.hitFunction();
-                    break;
-
-                default:
-                    console.log("OTHER KEY" + e.keyCode);
-                    break;
-            }
+        let keyBoard:KeyBoard = this.checkKey(e);
+        this.removeKey(keyBoard);
+        this.hitFunction();
     }
-
-    // goLeft(goLeftFunction){
-    //     goLeftFunction();
-    // }
 }

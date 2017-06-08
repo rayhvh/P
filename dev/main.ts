@@ -35,7 +35,7 @@ class Game {
         // this.asteroid = new Falling(50,50,2);
         this.asteroids = new Array<Asteroid>();
         console.log(this.app.screen.width);
-        for(let i = 0; i<10;i++){
+        for(let i = 0; i<3;i++){
             this.asteroids.push(new Falling(Util.random(0, this.app.screen.width),-50));
         }
         this.rocket = new Flying(300,300);

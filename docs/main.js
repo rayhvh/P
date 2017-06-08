@@ -43,8 +43,10 @@ var KeyBoard;
 (function (KeyBoard) {
     KeyBoard[KeyBoard["LEFT"] = 37] = "LEFT";
     KeyBoard[KeyBoard["RIGHT"] = 39] = "RIGHT";
+    KeyBoard[KeyBoard["UP"] = 38] = "UP";
     KeyBoard[KeyBoard["A"] = 65] = "A";
     KeyBoard[KeyBoard["D"] = 68] = "D";
+    KeyBoard[KeyBoard["W"] = 87] = "W";
 })(KeyBoard || (KeyBoard = {}));
 var Game = (function () {
     function Game() {
@@ -65,7 +67,7 @@ var Game = (function () {
         this.background = new Background(2, this.app.renderer.width, this.app.renderer.height);
         this.asteroids = new Array();
         console.log(this.app.screen.width);
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < 3; i++) {
             this.asteroids.push(new Falling(Util.random(0, this.app.screen.width), -50));
         }
         this.rocket = new Flying(300, 300);
@@ -206,10 +208,6 @@ var Spawner = (function () {
                 this.addAsteroid();
             }
         }
-        if (Util.timer(this.game.timer, 1)) {
-            this.multiplier += 0.01;
-            this.game.gameSpeed += this.multiplier;
-        }
     };
     Spawner.prototype.addAsteroid = function () {
         this.game.asteroids.push(new Falling(Util.random(0, this.game.app.screen.width), -200));
@@ -301,52 +299,31 @@ var KeyHandling = (function () {
             }
         }
     };
-    KeyHandling.prototype.keyDown = function (e) {
+    KeyHandling.prototype.checkKey = function (e) {
         switch (e.keyCode) {
             case KeyBoard.LEFT:
-                this.addKey(KeyBoard.LEFT);
-                this.hitFunction();
-                break;
-            case KeyBoard.A:
-                this.left = true;
-                this.addKey(KeyBoard.A);
-                this.hitFunction();
-                break;
+                return KeyBoard.LEFT;
             case KeyBoard.RIGHT:
-                this.addKey(KeyBoard.RIGHT);
-                this.hitFunction();
-                break;
+                return KeyBoard.RIGHT;
+            case KeyBoard.A:
+                return KeyBoard.A;
             case KeyBoard.D:
-                this.addKey(KeyBoard.D);
-                this.hitFunction();
-                break;
+                return KeyBoard.D;
             default:
                 console.log("OTHER KEY" + e.keyCode);
                 break;
         }
+        return null;
+    };
+    KeyHandling.prototype.keyDown = function (e) {
+        var keyBoard = this.checkKey(e);
+        this.addKey(keyBoard);
+        this.hitFunction();
     };
     KeyHandling.prototype.keyUp = function (e) {
-        switch (e.keyCode) {
-            case KeyBoard.LEFT:
-                this.removeKey(KeyBoard.LEFT);
-                this.hitFunction();
-                break;
-            case KeyBoard.RIGHT:
-                this.removeKey(KeyBoard.RIGHT);
-                this.hitFunction();
-                break;
-            case KeyBoard.A:
-                this.removeKey(KeyBoard.A);
-                this.hitFunction();
-                break;
-            case KeyBoard.D:
-                this.removeKey(KeyBoard.D);
-                this.hitFunction();
-                break;
-            default:
-                console.log("OTHER KEY" + e.keyCode);
-                break;
-        }
+        var keyBoard = this.checkKey(e);
+        this.removeKey(keyBoard);
+        this.hitFunction();
     };
     return KeyHandling;
 }());

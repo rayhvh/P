@@ -16,10 +16,10 @@ class Spawner{
             
         }
 
-        if(Util.timer(this.game.timer,1)){
-            this.multiplier += 0.01;
-            this.game.gameSpeed += this.multiplier;
-        }
+        // if(Util.timer(this.game.timer,1)){
+        //     this.multiplier += 0.01;
+        //     this.game.gameSpeed += this.multiplier;
+        // }
     }
 
     private addAsteroid(){
