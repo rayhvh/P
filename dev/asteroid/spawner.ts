@@ -1,29 +1,28 @@
 class Spawner{
-    private timer:number;
     private game:Game;
+    private multiplier:number;
 
     constructor(){
-        this.timer = 0;
         this.game = Game.getInstance();
+        this.multiplier = 0;
     }
 
-    update(){
-        this.timer++;
-        // console.log(this.timer);
-        if(this.timer % 60 == 0){
-            console.log("SEC");
-            this.spawnAsteroid();
-            //do action every second
+    public spawn(){
+        if(Util.timer(this.game.timer,1)){
+            let rate = Util.random(0,this.multiplier + 1);
+            for(let i = 0; i < rate; i++){
+                this.addAsteroid();
+            }
+            
         }
 
-        if(this.timer % 300 == 0){
-            console.log("5 SEC");
+        if(Util.timer(this.game.timer,1)){
+            this.multiplier += 0.01;
+            this.game.gameSpeed += this.multiplier;
         }
     }
-    
-    private spawnAsteroid(){
-            let x = Util.random(20,400);
-            let speed = Util.random(1,3);
-            // this.game.astroidList.push(new Falling(x,-40,speed,this.game.context));
+
+    private addAsteroid(){
+        this.game.asteroids.push(new Falling(Util.random(0,this.game.app.screen.width), -200));
     }
 }

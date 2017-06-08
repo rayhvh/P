@@ -5,7 +5,7 @@ class Util{
     }
 
     public static timer(timer:number,seconds:number):Boolean{
-        if(timer % (60 * seconds) == 1){
+        if(timer % (60 * seconds) == 0){
             return true;
         }
         return false;
@@ -29,11 +29,11 @@ class Util{
         return Math.round(value * multiplier) / multiplier;
     }
 
-    public static collidingRects (g:PIXI.Container,g2:PIXI.Container){
-        if (g.x < g2.x + g2.width &&
-            g.x + g.width > g2.x &&
-            g.y < g2.y + g2.height &&
-            g.height + g.y > g2.y) {
+    public static collidingRects (g:GameObject,g2:GameObject){
+        if (g.x < g2.x + g2.w &&
+            g.x + g.w > g2.x &&
+            g.y < g2.y + g2.h &&
+            g.h + g.y > g2.y) {
                 // collision detected!
                 return true;
             }
@@ -50,21 +50,35 @@ class Util{
         return false;
     }
 
-    public static  RectCircleColliding(gameObject1:PIXI.Container,gameObject2:PIXI.Container){
-        var distX = Math.abs(gameObject1.x - gameObject2.x-gameObject2.width/2);
-        var distY = Math.abs(gameObject1.y - gameObject2.y-gameObject2.height/2);
+    // public static  RectCircleColliding(gameObject1:PIXI.Container,circleObject:PIXI.Container){
+    //     var distX = Math.abs(gameObject1.x - circleObject.x-circleObject.width/2);
+    //     var distY = Math.abs(gameObject1.y - circleObject.y-circleObject.height/2);
 
-        if (distX > (gameObject2.width/2 + gameObject1.width)) { return false; }
-        if (distY > (gameObject2.height/2 + gameObject1.width)) { return false; }
+    //     if (distX > (circleObject.width/2 + gameObject1.width)) { return false; }
+    //     if (distY > (circleObject.height/2 + gameObject1.width)) { return false; }
 
-        if (distX <= (gameObject2.width/2)) { return true; } 
-        if (distY <= (gameObject2.height/2)) { return true; }
+    //     if (distX <= (circleObject.width/2)) { return true; } 
+    //     if (distY <= (circleObject.height/2)) { return true; }
 
-        var dx=distX-gameObject2.width/2;
-        var dy=distY-gameObject2.height/2;
+    //     var dx=distX-circleObject.width/2;
+    //     var dy=distY-circleObject.height/2;
         
-        return (dx*dx+dy*dy<=(gameObject1.width*gameObject1.width));
-    }
+    //     return (dx*dx+dy*dy<=(gameObject1.width*gameObject1.width));
+    // }
+//     public static AstroidHitRect(astroid:GameObject,rect:GameObject){
+//         var distX = Math.abs(astroid.x - rect.x-rect.w/2);
+//         var distY = Math.abs(astroid.y - rect.y-rect.h/2);
+
+//         if (distX > (rect.w/2 + astroid.r)) { return false; }
+//         if (distY > (rect.h/2 + astroid.r)) { return false; }
+
+//         if (distX <= (rect.width/2)) { return true; } 
+//         if (distY <= (rect.height/2)) { return true; }
+
+//         var dx=distX-rect.width/2;
+//         var dy=distY-rect.height/2;
+//     return (dx*dx+dy*dy<=(astroid.r*astroid.r));
+// }
 
     public static squareNumber(number:number):number{
         return number * number;
