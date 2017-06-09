@@ -51,14 +51,17 @@ class KeyHandling implements Observable{
     private checkKey(e:KeyboardEvent):KeyBoard{
         switch(e.keyCode){
                 case KeyBoard.LEFT:
-                    return KeyBoard.LEFT
+                    return KeyBoard.LEFT;
                 case KeyBoard.RIGHT:
-                    return KeyBoard.RIGHT
+                    return KeyBoard.RIGHT;
                 case KeyBoard.A:
-                    return KeyBoard.A
+                    return KeyBoard.A;
                 case KeyBoard.D:
-                   return KeyBoard.D
-
+                   return KeyBoard.D;
+                case KeyBoard.UP:
+                    return KeyBoard.UP;
+                 case KeyBoard.W:
+                    return KeyBoard.W;
                 default:
                     console.log("OTHER KEY" + e.keyCode);
                     break;

@@ -16,7 +16,7 @@ var GameObject = (function () {
 var ImageObject = (function (_super) {
     __extends(ImageObject, _super);
     function ImageObject(image, x, y, w, h) {
-        _super.call(this, PIXI.Texture.fromImage(image));
+        _super.call(this, PIXI.loader.resources[image].texture);
         this.x = x;
         this.y = y;
         this.width = w;
@@ -51,14 +51,19 @@ var KeyBoard;
 var Game = (function () {
     function Game() {
         this.timer = 1;
-        this.gameSpeed = 1;
+        this.gameSpeed = 4;
     }
     Game.getInstance = function () {
         if (!Game.instance) {
             Game.instance = new Game();
-            Game.instance.loader();
+            Game.instance.preloader();
         }
         return Game.instance;
+    };
+    Game.prototype.preloader = function () {
+        var _this = this;
+        PIXI.loader.add('astroid', 'images/astroid.png').add('rocket', 'images/rocket.png');
+        PIXI.loader.load(function () { return _this.loader(); });
     };
     Game.prototype.loader = function () {
         var _this = this;
@@ -66,11 +71,10 @@ var Game = (function () {
         document.body.appendChild(this.app.view);
         this.background = new Background(2, this.app.renderer.width, this.app.renderer.height);
         this.asteroids = new Array();
-        console.log(this.app.screen.width);
         for (var i = 0; i < 3; i++) {
             this.asteroids.push(new Falling(Util.random(0, this.app.screen.width), -50));
         }
-        this.rocket = new Flying(300, 300);
+        this.rocket = new Flying(this.app.screen.width / 2, this.app.screen.height - 100);
         this.keyHandling = new KeyHandling();
         this.keyHandling.subscribe(this.rocket);
         this.spawner = new Spawner();
@@ -78,18 +82,14 @@ var Game = (function () {
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
-        for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
-            var astroid = _a[_i];
-            if (Util.collidingRects(astroid.hitBox, this.rocket.hitBox)) {
-                console.log("Hitting");
-            }
-        }
         this.background.move();
-        this.rocket.reRender();
         this.rocket.move();
         this.spawner.spawn();
-        for (var _b = 0, _c = this.asteroids; _b < _c.length; _b++) {
-            var asteroid = _c[_b];
+        for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
+            var asteroid = _a[_i];
+            if (Util.collidingRects(asteroid.hitBox, this.rocket.hitBox)) {
+                console.log("HIT!");
+            }
             asteroid.move();
         }
         this.app.renderer.render(this.app.stage);
@@ -164,11 +164,12 @@ var Util = (function () {
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(x, y, w, h) {
-        _super.call(this, "images/astroid.png", x, y, w, h);
+        _super.call(this, "astroid", x, y, w, h);
         this.r = w / 2;
         var padding = 25;
         this.hitBox = new GameObject(this.x + padding / 2, this.y + padding / 2, this.width - padding, this.height - padding);
         console.log("RADIUS : " + this.r);
+        this.drawHitBox();
     }
     Asteroid.prototype.drawHitBox = function () {
         var padding = 25;
@@ -192,6 +193,8 @@ var Falling = (function (_super) {
     };
     Falling.prototype.move = function () {
         _super.prototype.move.call(this);
+        this.graphics.y += this.speed * this.game.gameSpeed;
+        this.hitBox.y += this.speed * this.game.gameSpeed;
         this.y += this.speed * this.game.gameSpeed;
     };
     return Falling;
@@ -230,7 +233,7 @@ var Background = (function () {
     };
     Background.prototype.starSpawner = function () {
         if (Util.timer(this.game.timer, 0.2)) {
-            this.addStars(Util.random(10, this.game.app.screen.width), 0);
+            this.addStars(Util.random(-10, this.game.app.screen.width), 0);
         }
     };
     Background.prototype.starRemover = function () {
@@ -309,6 +312,10 @@ var KeyHandling = (function () {
                 return KeyBoard.A;
             case KeyBoard.D:
                 return KeyBoard.D;
+            case KeyBoard.UP:
+                return KeyBoard.UP;
+            case KeyBoard.W:
+                return KeyBoard.W;
             default:
                 console.log("OTHER KEY" + e.keyCode);
                 break;
@@ -330,7 +337,8 @@ var KeyHandling = (function () {
 var Rocket = (function (_super) {
     __extends(Rocket, _super);
     function Rocket(x, y) {
-        _super.call(this, "images/rocket.png", x, y, 40, 60);
+        _super.call(this, "rocket", x, y, 40, 60);
+        this.drawHitBox();
         var padding = this.width / 2;
         this.hitBox = new GameObject(this.x + padding / 2, this.y, this.width - padding, this.height);
     }
@@ -350,32 +358,79 @@ var Flying = (function (_super) {
         _super.call(this, x, y);
         this.movingLeft = false;
         this.movingRight = false;
+        this.turbo = false;
+        this.maxTurbo = 5;
+        this.turboSpeed = 1;
         this.sideSpeed = 3.5;
+        this.keyHit = new Array();
     }
     Flying.prototype.notify = function (keyHit) {
-        console.log(keyHit);
-        if (keyHit.length <= 1) {
-            if (keyHit[0] == KeyBoard.LEFT || keyHit[0] == KeyBoard.A) {
-                this.movingLeft = true;
-                this.movingRight = false;
+        this.keyHit = keyHit;
+        if (keyHit.length >= 1) {
+            this.checkLeftOrRight(keyHit);
+            this.checkTurbo(keyHit);
+        }
+        else {
+            this.movingLeft = false;
+            this.movingRight = false;
+        }
+    };
+    Flying.prototype.checkLeftOrRight = function (keyHit) {
+        if (this.findKey(keyHit, KeyBoard.A, KeyBoard.LEFT)) {
+            this.movingLeft = true;
+            this.movingRight = false;
+        }
+        else if (this.findKey(keyHit, KeyBoard.D, KeyBoard.RIGHT)) {
+            this.movingRight = true;
+            this.movingLeft = false;
+        }
+        else {
+            this.movingLeft = false;
+            this.movingRight = false;
+        }
+    };
+    Flying.prototype.checkTurbo = function (keyHit) {
+        if (this.findKey(keyHit, KeyBoard.UP, KeyBoard.W)) {
+            if (this.turboSpeed < this.maxTurbo) {
+                this.turboSpeed = Number((this.turboSpeed += 0.05).toFixed(2));
             }
-            else if (keyHit[0] == KeyBoard.RIGHT || keyHit[0] == KeyBoard.D) {
-                this.movingRight = true;
-                this.movingLeft = false;
-            }
-            else {
-                this.movingLeft = false;
-                this.movingRight = false;
+        }
+        else {
+            if (this.turboSpeed > 1) {
+                this.turboSpeed = Number((this.turboSpeed -= 0.05).toFixed(2));
             }
         }
     };
+    Flying.prototype.findKey = function (keyHit, key1, key2) {
+        for (var _i = 0, keyHit_1 = keyHit; _i < keyHit_1.length; _i++) {
+            var key = keyHit_1[_i];
+            if (key == key1 || key == key2) {
+                return true;
+            }
+        }
+        return false;
+    };
     Flying.prototype.goLeft = function () {
         this.x -= this.sideSpeed;
+        this.graphics.x -= this.sideSpeed;
+        this.hitBox.x -= this.sideSpeed;
     };
     Flying.prototype.goRight = function () {
         this.x += this.sideSpeed;
+        this.graphics.x += this.sideSpeed;
+        this.hitBox.x += this.sideSpeed;
     };
     Flying.prototype.move = function () {
+        this.reRender();
+        if (this.keyHit.length == 0) {
+            if (this.turboSpeed > 1) {
+                this.turboSpeed = Number((this.turboSpeed -= 0.05).toFixed(2));
+                this.game.gameSpeed + this.turboSpeed;
+            }
+            else {
+                this.game.gameSpeed + this.turboSpeed;
+            }
+        }
         if (this.movingLeft) {
             this.goLeft();
         }

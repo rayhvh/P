@@ -6,8 +6,8 @@ abstract class Rocket extends ImageObject implements Observer{
     
 
     constructor(x:number, y:number){
-        super("images/rocket.png",x,y,40,60);
-        // this.drawHitBox();
+        super("rocket",x,y,40,60);
+        this.drawHitBox();
         let padding = this.width / 2;
         this.hitBox = new GameObject(this.x + padding / 2 , this.y, this.width - padding, this.height);
     }
