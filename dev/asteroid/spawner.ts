@@ -1,10 +1,13 @@
 class Spawner{
     private game:Game;
     private multiplier:number;
+    private startSpeed:number;
+    private MAXMULTIPLIER:number = 2.5;
 
     constructor(){
         this.game = Game.getInstance();
-        this.multiplier = 0;
+        this.multiplier = 1;
+        this.startSpeed = this.game.gameSpeed;
     }
 
     public spawn(){
@@ -16,10 +19,20 @@ class Spawner{
             
         }
 
-        // if(Util.timer(this.game.timer,1)){
-        //     this.multiplier += 0.01;
-        //     this.game.gameSpeed += this.multiplier;
-        // }
+        if(Util.timer(this.game.timer,1)){
+
+            console.log("GROTER " + this.multiplier +" - " + this.MAXMULTIPLIER);
+            if(this.multiplier <= this.MAXMULTIPLIER - 0.1){
+                console.log("GROTER" );
+                 this.multiplier = Number((this.multiplier += 0.1).toFixed(2));
+            }
+            
+            console.log(this.multiplier);
+            // if(this.multiplier <= 2){
+            //     console.log("NOW");
+            // }
+            this.game.gameSpeed = this.startSpeed * this.multiplier;
+        }
     }
 
     private addAsteroid(){

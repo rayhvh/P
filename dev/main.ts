@@ -7,10 +7,9 @@ class Game {
 
     private background:Background;
 
-    public asteroids:Array<Asteroid>;
-
     private rocket:Rocket;
     private spawner:Spawner;
+    public asteroids:Array<Asteroid>;
 
     private keyHandling:KeyHandling;
 

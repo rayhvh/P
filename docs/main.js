@@ -247,8 +247,10 @@ var Falling = (function (_super) {
 }(Asteroid));
 var Spawner = (function () {
     function Spawner() {
+        this.MAXMULTIPLIER = 2.5;
         this.game = Game.getInstance();
-        this.multiplier = 0;
+        this.multiplier = 1;
+        this.startSpeed = this.game.gameSpeed;
     }
     Spawner.prototype.spawn = function () {
         if (Util.timer(this.game.timer, 1)) {
@@ -256,6 +258,15 @@ var Spawner = (function () {
             for (var i = 0; i < rate; i++) {
                 this.addAsteroid();
             }
+        }
+        if (Util.timer(this.game.timer, 1)) {
+            console.log("GROTER " + this.multiplier + " - " + this.MAXMULTIPLIER);
+            if (this.multiplier <= this.MAXMULTIPLIER - 0.1) {
+                console.log("GROTER");
+                this.multiplier = Number((this.multiplier += 0.1).toFixed(2));
+            }
+            console.log(this.multiplier);
+            this.game.gameSpeed = this.startSpeed * this.multiplier;
         }
     };
     Spawner.prototype.addAsteroid = function () {
