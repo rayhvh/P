@@ -1,5 +1,6 @@
 /// <reference path="keyhandling/keyboard.ts" />
 
+
 class Game {
     public static instance:Game;
     public app:PIXI.Application;
@@ -15,6 +16,9 @@ class Game {
 
     public gameSpeed:number = 4;
     private scoreText:TextHandler;
+
+    public multiplier:number;
+    private score:number = 0;
 
     public static getInstance(){
         if(!Game.instance){
@@ -43,7 +47,7 @@ class Game {
         this.asteroids = new Array<Asteroid>();
         //spawn the astroids.
         for(let i = 0; i<3;i++){
-            this.asteroids.push(new Falling(Util.random(0, this.app.screen.width),-50));
+            this.asteroids.push(new Falling(Util.Random.random(0, this.app.screen.width),-50));
         }
         //This is th player
         this.rocket = new Flying(this.app.screen.width / 2,this.app.screen.height - 100);
@@ -61,13 +65,20 @@ class Game {
         requestAnimationFrame(() => this.gameLoop());
     }
 
+    scoreHandler(){
+        if(Util.Timer.timer(this.timer,1)){
+            this.score += this.multiplier;
+        }
+        this.scoreText.setText("Score :" + Number(this.score).toFixed(0));
+    }
+
     gameLoop(){
         this.background.move();
        
         this.spawner.spawn();
 
         for(let asteroid of this.asteroids){
-            if(Util.collidingRects(asteroid.hitBox, this.rocket.hitBox)){
+            if(Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)){
                 console.log("HIT!");
                 this.gameSpeed = 0;
                 this.rocket.remove();
@@ -76,6 +87,8 @@ class Game {
             asteroid.move();
         }
         this.rocket.move();
+
+        this.scoreHandler();
         
         this.app.renderer.render(this.app.stage);
         this.timer++;

@@ -13,23 +13,23 @@ class Background{
 
         for(let i = 0; i < 40; i ++){
             this.addStars(
-                Util.random(10,this.game.app.renderer.width),
-                Util.random(10,this.game.app.renderer.height -10)
+                Util.Random.random(10,this.game.app.renderer.width),
+                Util.Random.random(10,this.game.app.renderer.height -10)
             );
         }
         console.log("loaded");
     }
 
     private addStars(x:number, y:number){
-        let z = Util.randomDecimal(0.1,0.6);
+        let z = Util.Random.randomDecimal(0.1,0.6);
         let r = 5;
         this.stars.push(new Star(x,y,z,r));
     }
 
     private starSpawner(){
         //add star after every quarter of a second.
-        if(Util.timer(this.game.timer,0.2)){
-            this.addStars( Util.random(-10,this.game.app.screen.width),
+        if(Util.Timer.timer(this.game.timer,0.2)){
+            this.addStars( Util.Random.random(-10,this.game.app.screen.width),
             0);
         }
     }
@@ -44,7 +44,7 @@ class Background{
 
             let star = this.stars[i];
 
-            if(Util.hitBottom(star.y,this.game.app.renderer.height)){
+            if(Util.Collision.hitBottom(star.y,this.game.app.renderer.height)){
                 this.stars[i].remove();
                 this.stars.splice(i,1);
             }

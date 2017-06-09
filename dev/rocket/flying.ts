@@ -14,7 +14,7 @@ class Flying extends Rocket implements Observer{
 
     constructor(x:number,y:number){
         super(x,y,"rocket");
-        this.sideSpeed = 3.5;
+        this.sideSpeed = 5;
         this.keyHit = new Array();
     }
     notify(keyHit:Array<KeyBoard>):void{
@@ -86,7 +86,7 @@ class Flying extends Rocket implements Observer{
 
     move(){
         // console.log(this.game.gameSpeed + " - " + this.turboSpeed);
-        this.reRender();
+        // this.reRender();
 
         //if the key isn't hit then we need to slowdown.
         if(this.keyHit.length == 0){

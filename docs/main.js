@@ -44,7 +44,6 @@ var ImageObject = (function (_super) {
         this.create();
     };
     ImageObject.prototype.move = function () {
-        this.reRender();
     };
     return ImageObject;
 }(PIXI.Sprite));
@@ -61,6 +60,7 @@ var Game = (function () {
     function Game() {
         this.timer = 1;
         this.gameSpeed = 4;
+        this.score = 0;
     }
     Game.getInstance = function () {
         if (!Game.instance) {
@@ -83,7 +83,7 @@ var Game = (function () {
         this.background = new Background(2, this.app.renderer.width, this.app.renderer.height);
         this.asteroids = new Array();
         for (var i = 0; i < 3; i++) {
-            this.asteroids.push(new Falling(Util.random(0, this.app.screen.width), -50));
+            this.asteroids.push(new Falling(Util.Random.random(0, this.app.screen.width), -50));
         }
         this.rocket = new Flying(this.app.screen.width / 2, this.app.screen.height - 100);
         this.keyHandling = new KeyHandling();
@@ -92,13 +92,19 @@ var Game = (function () {
         this.spawner = new Spawner();
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
+    Game.prototype.scoreHandler = function () {
+        if (Util.Timer.timer(this.timer, 1)) {
+            this.score += this.multiplier;
+        }
+        this.scoreText.setText("Score :" + Number(this.score).toFixed(0));
+    };
     Game.prototype.gameLoop = function () {
         var _this = this;
         this.background.move();
         this.spawner.spawn();
         for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
             var asteroid = _a[_i];
-            if (Util.collidingRects(asteroid.hitBox, this.rocket.hitBox)) {
+            if (Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)) {
                 console.log("HIT!");
                 this.gameSpeed = 0;
                 this.rocket.remove();
@@ -107,6 +113,7 @@ var Game = (function () {
             asteroid.move();
         }
         this.rocket.move();
+        this.scoreHandler();
         this.app.renderer.render(this.app.stage);
         this.timer++;
         requestAnimationFrame(function () { return _this.gameLoop(); });
@@ -166,50 +173,11 @@ var TextHandler = (function (_super) {
     TextHandler.prototype.render = function () {
         this.game.app.stage.addChild(this.text);
     };
-    TextHandler.prototype.updateText = function (text) {
-        this.textString = text;
+    TextHandler.prototype.setText = function (text) {
+        this.text.text = text;
     };
     return TextHandler;
 }(Vector));
-var Util = (function () {
-    function Util() {
-    }
-    Util.random = function (min, max) {
-        return Math.round(Math.random() * (max - min)) + min;
-    };
-    Util.timer = function (timer, seconds) {
-        if (timer % (60 * seconds) == 0) {
-            return true;
-        }
-        return false;
-    };
-    Util.randomDecimal = function (min, max) {
-        return this.round(((Math.random() * (max - min)) + min), 1);
-    };
-    Util.hitBottom = function (y, bottom) {
-        if (y >= bottom) {
-            return true;
-        }
-        return false;
-    };
-    Util.round = function (value, precision) {
-        var multiplier = Math.pow(10, precision || 0);
-        return Math.round(value * multiplier) / multiplier;
-    };
-    Util.collidingRects = function (g, g2) {
-        if (g.x < g2.x + g2.w &&
-            g.x + g.w > g2.x &&
-            g.y < g2.y + g2.h &&
-            g.h + g.y > g2.y) {
-            return true;
-        }
-        return false;
-    };
-    Util.squareNumber = function (number) {
-        return number * number;
-    };
-    return Util;
-}());
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(x, y, w, h) {
@@ -232,7 +200,7 @@ var Falling = (function (_super) {
     __extends(Falling, _super);
     function Falling(x, y) {
         _super.call(this, x, y, 100, 100);
-        this.speed = Util.randomDecimal(0.5, 1);
+        this.speed = Util.Random.randomDecimal(0.5, 1);
     }
     Falling.prototype.rotating = function (delta) {
         this.anchor.set(0.5);
@@ -247,30 +215,29 @@ var Falling = (function (_super) {
 }(Asteroid));
 var Spawner = (function () {
     function Spawner() {
-        this.MAXMULTIPLIER = 2.5;
+        this.MAXMULTIPLIER = 3;
         this.game = Game.getInstance();
-        this.multiplier = 1;
+        this.game.multiplier = 1;
         this.startSpeed = this.game.gameSpeed;
     }
     Spawner.prototype.spawn = function () {
-        if (Util.timer(this.game.timer, 1)) {
-            var rate = Util.random(0, this.multiplier + 1);
+        var spawnRateTimer = 1 / this.game.multiplier;
+        console.log(spawnRateTimer);
+        if (Util.Timer.timer(this.game.timer, spawnRateTimer)) {
+            var rate = Util.Random.random(1, this.game.multiplier);
             for (var i = 0; i < rate; i++) {
                 this.addAsteroid();
             }
         }
-        if (Util.timer(this.game.timer, 1)) {
-            console.log("GROTER " + this.multiplier + " - " + this.MAXMULTIPLIER);
-            if (this.multiplier <= this.MAXMULTIPLIER - 0.1) {
-                console.log("GROTER");
-                this.multiplier = Number((this.multiplier += 0.1).toFixed(2));
+        if (Util.Timer.timer(this.game.timer, 1)) {
+            if (this.game.multiplier <= this.MAXMULTIPLIER - 0.1) {
+                this.game.multiplier = Number((this.game.multiplier += 0.1).toFixed(2));
             }
-            console.log(this.multiplier);
-            this.game.gameSpeed = this.startSpeed * this.multiplier;
+            this.game.gameSpeed = this.startSpeed * this.game.multiplier;
         }
     };
     Spawner.prototype.addAsteroid = function () {
-        this.game.asteroids.push(new Falling(Util.random(0, this.game.app.screen.width), -200));
+        this.game.asteroids.push(new Falling(Util.Random.random(0, this.game.app.screen.width), -200));
     };
     return Spawner;
 }());
@@ -279,18 +246,18 @@ var Background = (function () {
         this.stars = [];
         this.game = Game.getInstance();
         for (var i = 0; i < 40; i++) {
-            this.addStars(Util.random(10, this.game.app.renderer.width), Util.random(10, this.game.app.renderer.height - 10));
+            this.addStars(Util.Random.random(10, this.game.app.renderer.width), Util.Random.random(10, this.game.app.renderer.height - 10));
         }
         console.log("loaded");
     }
     Background.prototype.addStars = function (x, y) {
-        var z = Util.randomDecimal(0.1, 0.6);
+        var z = Util.Random.randomDecimal(0.1, 0.6);
         var r = 5;
         this.stars.push(new Star(x, y, z, r));
     };
     Background.prototype.starSpawner = function () {
-        if (Util.timer(this.game.timer, 0.2)) {
-            this.addStars(Util.random(-10, this.game.app.screen.width), 0);
+        if (Util.Timer.timer(this.game.timer, 0.2)) {
+            this.addStars(Util.Random.random(-10, this.game.app.screen.width), 0);
         }
     };
     Background.prototype.starRemover = function () {
@@ -299,7 +266,7 @@ var Background = (function () {
         this.starSpawner();
         for (var i = 0; i < this.stars.length; i++) {
             var star = this.stars[i];
-            if (Util.hitBottom(star.y, this.game.app.renderer.height)) {
+            if (Util.Collision.hitBottom(star.y, this.game.app.renderer.height)) {
                 this.stars[i].remove();
                 this.stars.splice(i, 1);
             }
@@ -431,7 +398,7 @@ var Flying = (function (_super) {
         this.turbo = false;
         this.maxTurbo = 5;
         this.turboSpeed = 1;
-        this.sideSpeed = 3.5;
+        this.sideSpeed = 5;
         this.keyHit = new Array();
     }
     Flying.prototype.notify = function (keyHit) {
@@ -489,7 +456,6 @@ var Flying = (function (_super) {
         this.hitBox.x += this.sideSpeed;
     };
     Flying.prototype.move = function () {
-        this.reRender();
         if (this.keyHit.length == 0) {
             if (this.turboSpeed > 1) {
                 this.turboSpeed = Number((this.turboSpeed -= 0.05).toFixed(2));
@@ -527,4 +493,62 @@ var Standing = (function (_super) {
     Standing.prototype.move = function () { };
     return Standing;
 }(Rocket));
+var Util;
+(function (Util) {
+    var Collision = (function () {
+        function Collision() {
+        }
+        Collision.collidingRects = function (g, g2) {
+            if (g.x < g2.x + g2.w &&
+                g.x + g.w > g2.x &&
+                g.y < g2.y + g2.h &&
+                g.h + g.y > g2.y) {
+                return true;
+            }
+            return false;
+        };
+        Collision.hitBottom = function (y, bottom) {
+            if (y >= bottom) {
+                return true;
+            }
+            return false;
+        };
+        return Collision;
+    }());
+    Util.Collision = Collision;
+})(Util || (Util = {}));
+var Util;
+(function (Util) {
+    var Random = (function () {
+        function Random() {
+        }
+        Random.random = function (min, max) {
+            return Math.round(Math.random() * (max - min)) + min;
+        };
+        Random.randomDecimal = function (min, max) {
+            return this.round(((Math.random() * (max - min)) + min), 1);
+        };
+        Random.round = function (value, precision) {
+            var multiplier = Math.pow(10, precision || 0);
+            return Math.round(value * multiplier) / multiplier;
+        };
+        return Random;
+    }());
+    Util.Random = Random;
+})(Util || (Util = {}));
+var Util;
+(function (Util) {
+    var Timer = (function () {
+        function Timer() {
+        }
+        Timer.timer = function (timer, seconds) {
+            if (timer % (60 * seconds) == 0) {
+                return true;
+            }
+            return false;
+        };
+        return Timer;
+    }());
+    Util.Timer = Timer;
+})(Util || (Util = {}));
 //# sourceMappingURL=main.js.map

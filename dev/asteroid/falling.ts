@@ -3,7 +3,7 @@ class Falling extends Asteroid{
     
     constructor(x:number, y:number){
         super(x,y,100,100);
-        this.speed = Util.randomDecimal(0.5,1);
+        this.speed = Util.Random.randomDecimal(0.5,1);
     }
 
     private rotating(delta:any){ 

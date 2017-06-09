@@ -41,11 +41,7 @@ class TextHandler extends Vector{
        this.game.app.stage.addChild(this.text); 
     }
 
-    public updateText(text:string){
-        this.textString = text;
+    public setText(text:string):void{
+        this.text.text = text;
     }
-
-
-
-
 }
