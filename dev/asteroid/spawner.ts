@@ -6,7 +6,6 @@ class Spawner{
 
     constructor(){
         this.game = Game.getInstance();
-        this.game.multiplier = 1;
         this.startSpeed = this.game.gameSpeed;
     }
 

@@ -22,6 +22,12 @@ class Game {
 
     private gameOver:Boolean = false;
 
+    private gameOverHandler:GameOverHandler;
+
+    private gameOverText:TextHandler;
+    private extraInfo:TextHandler;
+
+
     public static getInstance(){
         if(!Game.instance){
             Game.instance = new Game();
@@ -48,7 +54,22 @@ class Game {
         this.app.stage.interactive = true;
         // var spineBoy = new PIXI.spine.Spine(res.spineboy.spineData);
 
-        this.background = new Background(2,this.app.renderer.width,this.app.renderer.height);
+        this.setup();
+
+        this.spawner = new Spawner();
+        requestAnimationFrame(() => this.gameLoop());
+    }
+
+    setup(){
+        //remove all the childs
+        if(this.gameOver){
+            for (var i = this.app.stage.children.length - 1; i >= 0; i--) {	this.app.stage.removeChild(this.app.stage.children[i]);};
+            this.gameOver = false;
+            this.keyHandling.unsubscribe(this.gameOverHandler);
+        }
+        this.multiplier = 1;
+        this.score = 0;
+        this.background = new Background(2,this.app.screen.width,this.app.screen.height);
         // We need some Astroids to fall at the beginning.
         this.asteroids = new Array<Asteroid>();
         //spawn the astroids.
@@ -65,52 +86,62 @@ class Game {
         //Show Score
         this.scoreText = new TextHandler("Score : 1",20,"#000000",this.app.screen.width/2,20);
 
-        //load the spawner this will spawn the astroids
-        this.spawner = new Spawner();
-        this.spriteje();
-        requestAnimationFrame(() => this.gameLoop());
-    }
+        
 
-    spriteje(){
-       
     }
 
     scoreHandler(){
         if(Util.Timer.timer(this.timer,1)){
             this.score += this.multiplier;
         }
-        this.scoreText.setText("Score :" + Number(this.score).toFixed(0));
+        this.scoreText.setText("Score : " + Number(this.score).toFixed(0));
     }
 
     gameLoop(){
         if(!this.gameOver){
+            console.log("LOOPING");
             this.background.move();
         
             this.spawner.spawn();
 
             for(let asteroid of this.asteroids){
                 if(Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)){
-                    console.log("HIT!");
-                    this.gameSpeed = 0;
-                    this.rocket.remove();
-                    this.rocket = new Explode(this.rocket.x, this.rocket.y);
-                    this.gameOver = true;
+                    this.loadGameOver();
                 }
                 asteroid.move();
             }
             this.rocket.move();
 
             this.scoreHandler();
+            this.scoreText.reRender();
             
             this.app.renderer.render(this.app.stage);
             this.timer++;
         }else{
-            console.log("GAME OVER!");
+            // console.log("GAME OVER!");
+            //show game over text
+            // this.app.stage.addChild(gameOver);
         }
 
         requestAnimationFrame(() => this.gameLoop());
     }
+
+    private loadGameOver(){
+        console.log("HIT!");
+        this.gameSpeed = 0;
+        this.rocket.remove();
+        this.keyHandling.unsubscribe(<Flying>this.rocket);
+        this.gameOverHandler = new GameOverHandler();
+        this.keyHandling.subscribe(this.gameOverHandler);
+        this.rocket = new Explode(this.rocket.x, this.rocket.y);
+        this.gameOver = true;
+        this.gameOverText = new TextHandler("GAME OVER",40,"#000000",this.app.screen.width/2,this.app.screen.height/2);
+        this.extraInfo = new TextHandler("Press R to restart",20,"#000000",this.app.screen.width/2,this.app.screen.height/2 + 50);
+        
+    }
 } 
+
+
 
 // load
 window.addEventListener("load", function() {

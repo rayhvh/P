@@ -22,6 +22,35 @@ var GameObject = (function (_super) {
     }
     return GameObject;
 }(Vector));
+var GameOverHandler = (function () {
+    function GameOverHandler() {
+    }
+    GameOverHandler.prototype.notify = function (keyHit) {
+        console.log(keyHit);
+        this.game = Game.getInstance();
+        if (this.findKey(keyHit, KeyBoard.R)) {
+            console.log("HITTING R");
+            this.game.setup();
+        }
+    };
+    GameOverHandler.prototype.findKey = function (keyHit, key1, key2) {
+        for (var _i = 0, keyHit_1 = keyHit; _i < keyHit_1.length; _i++) {
+            var key = keyHit_1[_i];
+            if (key2) {
+                if (key == key1 || key == key2) {
+                    return true;
+                }
+            }
+            else {
+                if (key == key1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    return GameOverHandler;
+}());
 var ImageObject = (function (_super) {
     __extends(ImageObject, _super);
     function ImageObject(image, x, y, w, h) {
@@ -55,6 +84,7 @@ var KeyBoard;
     KeyBoard[KeyBoard["A"] = 65] = "A";
     KeyBoard[KeyBoard["D"] = 68] = "D";
     KeyBoard[KeyBoard["W"] = 87] = "W";
+    KeyBoard[KeyBoard["R"] = 82] = "R";
 })(KeyBoard || (KeyBoard = {}));
 var Game = (function () {
     function Game() {
@@ -83,52 +113,71 @@ var Game = (function () {
         this.app = new PIXI.Application(800, 600, { backgroundColor: 0x000000 });
         document.body.appendChild(this.app.view);
         this.app.stage.interactive = true;
-        this.background = new Background(2, this.app.renderer.width, this.app.renderer.height);
+        this.setup();
+        this.spawner = new Spawner();
+        requestAnimationFrame(function () { return _this.gameLoop(); });
+    };
+    Game.prototype.setup = function () {
+        if (this.gameOver) {
+            for (var i = this.app.stage.children.length - 1; i >= 0; i--) {
+                this.app.stage.removeChild(this.app.stage.children[i]);
+            }
+            ;
+            this.gameOver = false;
+            this.keyHandling.unsubscribe(this.gameOverHandler);
+        }
+        this.multiplier = 1;
+        this.score = 0;
+        this.background = new Background(2, this.app.screen.width, this.app.screen.height);
         this.asteroids = new Array();
-        for (var i = 0; i < 3; i++) {
+        for (var i_1 = 0; i_1 < 3; i_1++) {
             this.asteroids.push(new Falling(Util.Random.random(0, this.app.screen.width), -50));
         }
         this.rocket = new Flying(this.app.screen.width / 2, this.app.screen.height - 100);
         this.keyHandling = new KeyHandling();
         this.keyHandling.subscribe(this.rocket);
         this.scoreText = new TextHandler("Score : 1", 20, "#000000", this.app.screen.width / 2, 20);
-        this.spawner = new Spawner();
-        this.spriteje();
-        requestAnimationFrame(function () { return _this.gameLoop(); });
-    };
-    Game.prototype.spriteje = function () {
     };
     Game.prototype.scoreHandler = function () {
         if (Util.Timer.timer(this.timer, 1)) {
             this.score += this.multiplier;
         }
-        this.scoreText.setText("Score :" + Number(this.score).toFixed(0));
+        this.scoreText.setText("Score : " + Number(this.score).toFixed(0));
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
         if (!this.gameOver) {
+            console.log("LOOPING");
             this.background.move();
             this.spawner.spawn();
             for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
                 var asteroid = _a[_i];
                 if (Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)) {
-                    console.log("HIT!");
-                    this.gameSpeed = 0;
-                    this.rocket.remove();
-                    this.rocket = new Explode(this.rocket.x, this.rocket.y);
-                    this.gameOver = true;
+                    this.loadGameOver();
                 }
                 asteroid.move();
             }
             this.rocket.move();
             this.scoreHandler();
+            this.scoreText.reRender();
             this.app.renderer.render(this.app.stage);
             this.timer++;
         }
         else {
-            console.log("GAME OVER!");
         }
         requestAnimationFrame(function () { return _this.gameLoop(); });
+    };
+    Game.prototype.loadGameOver = function () {
+        console.log("HIT!");
+        this.gameSpeed = 0;
+        this.rocket.remove();
+        this.keyHandling.unsubscribe(this.rocket);
+        this.gameOverHandler = new GameOverHandler();
+        this.keyHandling.subscribe(this.gameOverHandler);
+        this.rocket = new Explode(this.rocket.x, this.rocket.y);
+        this.gameOver = true;
+        this.gameOverText = new TextHandler("GAME OVER", 40, "#000000", this.app.screen.width / 2, this.app.screen.height / 2);
+        this.extraInfo = new TextHandler("Press R to restart", 20, "#000000", this.app.screen.width / 2, this.app.screen.height / 2 + 50);
     };
     return Game;
 }());
@@ -182,6 +231,13 @@ var TextHandler = (function (_super) {
         this.text.x = this.x;
         this.text.y = this.y;
     };
+    TextHandler.prototype.reRender = function () {
+        this.remove();
+        this.render();
+    };
+    TextHandler.prototype.remove = function () {
+        this.game.app.stage.removeChild(this.text);
+    };
     TextHandler.prototype.render = function () {
         this.game.app.stage.addChild(this.text);
     };
@@ -229,7 +285,6 @@ var Spawner = (function () {
     function Spawner() {
         this.MAXMULTIPLIER = 3;
         this.game = Game.getInstance();
-        this.game.multiplier = 1;
         this.startSpeed = this.game.gameSpeed;
     }
     Spawner.prototype.spawn = function () {
@@ -353,6 +408,8 @@ var KeyHandling = (function () {
                 return KeyBoard.UP;
             case KeyBoard.W:
                 return KeyBoard.W;
+            case KeyBoard.R:
+                return KeyBoard.R;
             default:
                 console.log("OTHER KEY" + e.keyCode);
                 break;
@@ -471,8 +528,8 @@ var Flying = (function (_super) {
         }
     };
     Flying.prototype.findKey = function (keyHit, key1, key2) {
-        for (var _i = 0, keyHit_1 = keyHit; _i < keyHit_1.length; _i++) {
-            var key = keyHit_1[_i];
+        for (var _i = 0, keyHit_2 = keyHit; _i < keyHit_2.length; _i++) {
+            var key = keyHit_2[_i];
             if (key == key1 || key == key2) {
                 return true;
             }

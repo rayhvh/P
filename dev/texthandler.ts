@@ -36,6 +36,14 @@ class TextHandler extends Vector{
         this.text.y = this.y;
 
     }
+    public reRender(){
+        this.remove();
+        this.render();
+    }
+
+    private remove(){
+        this.game.app.stage.removeChild(this.text); 
+    }
 
     private render(){
        this.game.app.stage.addChild(this.text); 

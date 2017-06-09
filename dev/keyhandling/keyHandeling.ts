@@ -62,6 +62,8 @@ class KeyHandling implements Observable{
                     return KeyBoard.UP;
                  case KeyBoard.W:
                     return KeyBoard.W;
+                case KeyBoard.R:
+                    return KeyBoard.R;
                 default:
                     console.log("OTHER KEY" + e.keyCode);
                     break;

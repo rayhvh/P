@@ -5,4 +5,5 @@ enum KeyBoard{
     A = 65,
     D = 68,
     W = 87,
+    R = 82,
 }
