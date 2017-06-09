@@ -16,7 +16,7 @@ abstract class Asteroid extends ImageObject{
         this.hitBox = new GameObject(this.x + padding /2, this.y + padding / 2, this.width - padding,this.height - padding)
         console.log("RADIUS : "+this.r);
         // this.boudingBox = new GameObject()
-        this.drawHitBox();
+        // this.drawHitBox();
     }
     drawHitBox(){
         let padding:number = 25;

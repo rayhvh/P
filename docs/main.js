@@ -3,8 +3,17 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var GameObject = (function () {
+var Vector = (function () {
+    function Vector(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    return Vector;
+}());
+var GameObject = (function (_super) {
+    __extends(GameObject, _super);
     function GameObject(x, y, w, h) {
+        _super.call(this, x, y);
         this.x = x;
         this.y = y;
         this.w = w;
@@ -12,7 +21,7 @@ var GameObject = (function () {
         this.game = Game.getInstance();
     }
     return GameObject;
-}());
+}(Vector));
 var ImageObject = (function (_super) {
     __extends(ImageObject, _super);
     function ImageObject(image, x, y, w, h) {
@@ -62,7 +71,9 @@ var Game = (function () {
     };
     Game.prototype.preloader = function () {
         var _this = this;
-        PIXI.loader.add('astroid', 'images/astroid.png').add('rocket', 'images/rocket.png');
+        PIXI.loader.add('astroid', 'images/astroid.png')
+            .add('rocket', 'images/rocket.png')
+            .add('rocketexplode', 'images/explosion.png');
         PIXI.loader.load(function () { return _this.loader(); });
     };
     Game.prototype.loader = function () {
@@ -77,21 +88,25 @@ var Game = (function () {
         this.rocket = new Flying(this.app.screen.width / 2, this.app.screen.height - 100);
         this.keyHandling = new KeyHandling();
         this.keyHandling.subscribe(this.rocket);
+        this.scoreText = new TextHandler("Score : 1", 20, "#000000", this.app.screen.width / 2, 20);
         this.spawner = new Spawner();
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
         this.background.move();
-        this.rocket.move();
         this.spawner.spawn();
         for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
             var asteroid = _a[_i];
             if (Util.collidingRects(asteroid.hitBox, this.rocket.hitBox)) {
                 console.log("HIT!");
+                this.gameSpeed = 0;
+                this.rocket.remove();
+                this.rocket = new Explode(this.rocket.x, this.rocket.y);
             }
             asteroid.move();
         }
+        this.rocket.move();
         this.app.renderer.render(this.app.stage);
         this.timer++;
         requestAnimationFrame(function () { return _this.gameLoop(); });
@@ -122,6 +137,37 @@ var Partical = (function (_super) {
     };
     return Partical;
 }(PIXI.Graphics));
+var TextHandler = (function (_super) {
+    __extends(TextHandler, _super);
+    function TextHandler(text, fontSize, color, x, y) {
+        _super.call(this, x, y);
+        this.color = color;
+        this.fontSize = fontSize;
+        this.textString = text;
+        this.init();
+        this.game = Game.getInstance();
+        this.render();
+    }
+    TextHandler.prototype.init = function () {
+        this.text = new PIXI.Text(this.textString, {
+            fontWeight: 'bold',
+            fontSize: this.fontSize,
+            fontFamily: 'Arial',
+            fill: '#FFFFFF',
+            align: 'center',
+        });
+        this.text.anchor.set(0.5);
+        this.text.x = this.x;
+        this.text.y = this.y;
+    };
+    TextHandler.prototype.render = function () {
+        this.game.app.stage.addChild(this.text);
+    };
+    TextHandler.prototype.updateText = function (text) {
+        this.textString = text;
+    };
+    return TextHandler;
+}(Vector));
 var Util = (function () {
     function Util() {
     }
@@ -169,7 +215,6 @@ var Asteroid = (function (_super) {
         var padding = 25;
         this.hitBox = new GameObject(this.x + padding / 2, this.y + padding / 2, this.width - padding, this.height - padding);
         console.log("RADIUS : " + this.r);
-        this.drawHitBox();
     }
     Asteroid.prototype.drawHitBox = function () {
         var padding = 25;
@@ -193,7 +238,6 @@ var Falling = (function (_super) {
     };
     Falling.prototype.move = function () {
         _super.prototype.move.call(this);
-        this.graphics.y += this.speed * this.game.gameSpeed;
         this.hitBox.y += this.speed * this.game.gameSpeed;
         this.y += this.speed * this.game.gameSpeed;
     };
@@ -336,9 +380,8 @@ var KeyHandling = (function () {
 }());
 var Rocket = (function (_super) {
     __extends(Rocket, _super);
-    function Rocket(x, y) {
-        _super.call(this, "rocket", x, y, 40, 60);
-        this.drawHitBox();
+    function Rocket(x, y, sprite) {
+        _super.call(this, sprite, x, y, 40, 60);
         var padding = this.width / 2;
         this.hitBox = new GameObject(this.x + padding / 2, this.y, this.width - padding, this.height);
     }
@@ -352,10 +395,23 @@ var Rocket = (function (_super) {
     };
     return Rocket;
 }(ImageObject));
+var Explode = (function (_super) {
+    __extends(Explode, _super);
+    function Explode(x, y) {
+        _super.call(this, x, y, "rocketexplode");
+        this.width = 100;
+        this.height = 100;
+    }
+    Explode.prototype.move = function () {
+    };
+    Explode.prototype.notify = function () {
+    };
+    return Explode;
+}(Rocket));
 var Flying = (function (_super) {
     __extends(Flying, _super);
     function Flying(x, y) {
-        _super.call(this, x, y);
+        _super.call(this, x, y, "rocket");
         this.movingLeft = false;
         this.movingRight = false;
         this.turbo = false;
@@ -412,12 +468,10 @@ var Flying = (function (_super) {
     };
     Flying.prototype.goLeft = function () {
         this.x -= this.sideSpeed;
-        this.graphics.x -= this.sideSpeed;
         this.hitBox.x -= this.sideSpeed;
     };
     Flying.prototype.goRight = function () {
         this.x += this.sideSpeed;
-        this.graphics.x += this.sideSpeed;
         this.hitBox.x += this.sideSpeed;
     };
     Flying.prototype.move = function () {

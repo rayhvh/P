@@ -1,18 +1,18 @@
 /// <reference path="../imageObject.ts" />
 
-abstract class Rocket extends ImageObject implements Observer{
+abstract class Rocket extends ImageObject{
     public hitBox:GameObject;
     public graphics:PIXI.Graphics;
     
 
-    constructor(x:number, y:number){
-        super("rocket",x,y,40,60);
-        this.drawHitBox();
+    constructor(x:number, y:number,sprite:string){
+        super(sprite,x,y,40,60);
+        // this.drawHitBox();
         let padding = this.width / 2;
         this.hitBox = new GameObject(this.x + padding / 2 , this.y, this.width - padding, this.height);
     }
 
-    drawHitBox(){
+    private drawHitBox(){
         // let paddingW:number = 25;
         // let paddingH:number = 25;
         
@@ -28,9 +28,6 @@ abstract class Rocket extends ImageObject implements Observer{
 
         this.game.app.stage.addChild(this.graphics);
     }
-    abstract notify(keyHit:Array<KeyBoard>):void;
-    abstract goLeft():void;
-    abstract goRight():void;
-    
+
     abstract move():void;
 }

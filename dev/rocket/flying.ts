@@ -1,7 +1,7 @@
 /// <reference path="rocket.ts" />
 /// <reference path="../keyhandling/keyboard.ts" />
 
-class Flying extends Rocket{
+class Flying extends Rocket implements Observer{
     private movingLeft:boolean = false;
     private movingRight:boolean = false;
 
@@ -13,7 +13,7 @@ class Flying extends Rocket{
     private keyHit:Array<KeyBoard>;
 
     constructor(x:number,y:number){
-        super(x,y);
+        super(x,y,"rocket");
         this.sideSpeed = 3.5;
         this.keyHit = new Array();
     }
@@ -75,12 +75,12 @@ class Flying extends Rocket{
     
     goLeft(){
         this.x -= this.sideSpeed;
-        this.graphics.x -= this.sideSpeed;
+        // this.graphics.x -= this.sideSpeed;
         this.hitBox.x -= this.sideSpeed;
     }
     goRight(){
         this.x += this.sideSpeed;
-        this.graphics.x += this.sideSpeed;
+        // this.graphics.x += this.sideSpeed;
         this.hitBox.x += this.sideSpeed;
     }
 

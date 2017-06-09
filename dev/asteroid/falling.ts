@@ -13,7 +13,7 @@ class Falling extends Asteroid{
 
     public move(){
         super.move();
-        this.graphics.y += this.speed * this.game.gameSpeed;
+        // this.graphics.y += this.speed * this.game.gameSpeed;
         this.hitBox.y += this.speed * this.game.gameSpeed;
         // this.graphics.y += this.speed * this.game.gameSpeed;
         this.y += this.speed * this.game.gameSpeed;

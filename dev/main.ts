@@ -15,6 +15,7 @@ class Game {
     private keyHandling:KeyHandling;
 
     public gameSpeed:number = 4;
+    private scoreText:TextHandler;
 
     public static getInstance(){
         if(!Game.instance){
@@ -27,7 +28,9 @@ class Game {
     //after that load the game.
     //TODO: Maybe we need to make an load screen?
     private preloader():void{
-        PIXI.loader.add('astroid', 'images/astroid.png').add('rocket', 'images/rocket.png');
+        PIXI.loader.add('astroid', 'images/astroid.png')
+                    .add('rocket', 'images/rocket.png')
+                    .add('rocketexplode', 'images/explosion.png');
         PIXI.loader.load(() => this.loader());
     }
 
@@ -48,7 +51,10 @@ class Game {
    
         //The Player needs keyhandeling so we subscibe to it!
         this.keyHandling = new KeyHandling();
-        this.keyHandling.subscribe(this.rocket);
+        this.keyHandling.subscribe(<Flying>this.rocket);
+
+        //Show Score
+        this.scoreText = new TextHandler("Score : 1",20,"#000000",this.app.screen.width/2,20);
 
         //load the spawner this will spawn the astroids
         this.spawner = new Spawner();
@@ -58,15 +64,19 @@ class Game {
 
     gameLoop(){
         this.background.move();
-        this.rocket.move();
+       
         this.spawner.spawn();
 
         for(let asteroid of this.asteroids){
             if(Util.collidingRects(asteroid.hitBox, this.rocket.hitBox)){
                 console.log("HIT!");
+                this.gameSpeed = 0;
+                this.rocket.remove();
+                this.rocket = new Explode(this.rocket.x, this.rocket.y);
             }
             asteroid.move();
         }
+        this.rocket.move();
         
         this.app.renderer.render(this.app.stage);
         this.timer++;

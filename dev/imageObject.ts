@@ -21,7 +21,7 @@ abstract class ImageObject extends PIXI.Sprite{
         this.game.app.stage.addChild(this);
     }
 
-    private remove(){
+    public remove(){
         this.game.app.stage.removeChild(this);
     }
 
