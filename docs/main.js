@@ -25,7 +25,7 @@ var GameObject = (function (_super) {
 var ImageObject = (function (_super) {
     __extends(ImageObject, _super);
     function ImageObject(image, x, y, w, h) {
-        _super.call(this, PIXI.loader.resources[image].texture);
+        _super.call(this, image);
         this.x = x;
         this.y = y;
         this.width = w;
@@ -61,6 +61,7 @@ var Game = (function () {
         this.timer = 1;
         this.gameSpeed = 4;
         this.score = 0;
+        this.gameOver = false;
     }
     Game.getInstance = function () {
         if (!Game.instance) {
@@ -73,13 +74,15 @@ var Game = (function () {
         var _this = this;
         PIXI.loader.add('astroid', 'images/astroid.png')
             .add('rocket', 'images/rocket.png')
-            .add('rocketexplode', 'images/explosion.png');
+            .add('rocketexplode', 'images/explosion.png')
+            .add('explode', 'images/sprites.json');
         PIXI.loader.load(function () { return _this.loader(); });
     };
     Game.prototype.loader = function () {
         var _this = this;
         this.app = new PIXI.Application(800, 600, { backgroundColor: 0x000000 });
         document.body.appendChild(this.app.view);
+        this.app.stage.interactive = true;
         this.background = new Background(2, this.app.renderer.width, this.app.renderer.height);
         this.asteroids = new Array();
         for (var i = 0; i < 3; i++) {
@@ -90,7 +93,10 @@ var Game = (function () {
         this.keyHandling.subscribe(this.rocket);
         this.scoreText = new TextHandler("Score : 1", 20, "#000000", this.app.screen.width / 2, 20);
         this.spawner = new Spawner();
+        this.spriteje();
         requestAnimationFrame(function () { return _this.gameLoop(); });
+    };
+    Game.prototype.spriteje = function () {
     };
     Game.prototype.scoreHandler = function () {
         if (Util.Timer.timer(this.timer, 1)) {
@@ -100,22 +106,28 @@ var Game = (function () {
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
-        this.background.move();
-        this.spawner.spawn();
-        for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
-            var asteroid = _a[_i];
-            if (Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)) {
-                console.log("HIT!");
-                this.gameSpeed = 0;
-                this.rocket.remove();
-                this.rocket = new Explode(this.rocket.x, this.rocket.y);
+        if (!this.gameOver) {
+            this.background.move();
+            this.spawner.spawn();
+            for (var _i = 0, _a = this.asteroids; _i < _a.length; _i++) {
+                var asteroid = _a[_i];
+                if (Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)) {
+                    console.log("HIT!");
+                    this.gameSpeed = 0;
+                    this.rocket.remove();
+                    this.rocket = new Explode(this.rocket.x, this.rocket.y);
+                    this.gameOver = true;
+                }
+                asteroid.move();
             }
-            asteroid.move();
+            this.rocket.move();
+            this.scoreHandler();
+            this.app.renderer.render(this.app.stage);
+            this.timer++;
         }
-        this.rocket.move();
-        this.scoreHandler();
-        this.app.renderer.render(this.app.stage);
-        this.timer++;
+        else {
+            console.log("GAME OVER!");
+        }
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
@@ -181,7 +193,7 @@ var TextHandler = (function (_super) {
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(x, y, w, h) {
-        _super.call(this, "astroid", x, y, w, h);
+        _super.call(this, PIXI.loader.resources.astroid.texture, x, y, w, h);
         this.r = w / 2;
         var padding = 25;
         this.hitBox = new GameObject(this.x + padding / 2, this.y + padding / 2, this.width - padding, this.height - padding);
@@ -223,8 +235,8 @@ var Spawner = (function () {
     Spawner.prototype.spawn = function () {
         var spawnRateTimer = 1 / this.game.multiplier;
         console.log(spawnRateTimer);
-        if (Util.Timer.timer(this.game.timer, spawnRateTimer)) {
-            var rate = Util.Random.random(1, this.game.multiplier);
+        if (Util.Timer.timer(this.game.timer, 0.5)) {
+            var rate = Util.Random.random(0, this.game.multiplier);
             for (var i = 0; i < rate; i++) {
                 this.addAsteroid();
             }
@@ -379,10 +391,30 @@ var Rocket = (function (_super) {
 var Explode = (function (_super) {
     __extends(Explode, _super);
     function Explode(x, y) {
-        _super.call(this, x, y, "rocketexplode");
-        this.width = 100;
-        this.height = 100;
+        _super.call(this, x, y, null);
+        this.init();
     }
+    Explode.prototype.init = function () {
+        var _this = this;
+        var explosionTextures = [], i;
+        for (i = 0; i < 6; i++) {
+            console.log(i);
+            var texture = PIXI.Texture.fromFrame('sprites_0' + (i + 1) + '.png');
+            explosionTextures.push(texture);
+        }
+        var explosion = new PIXI.extras.AnimatedSprite(explosionTextures);
+        explosion.loop = false;
+        explosion.animationSpeed = 0.3;
+        explosion.x = this.x + 15;
+        explosion.y = this.y + 15;
+        explosion.anchor.set(0.5);
+        explosion.scale.set(2);
+        explosion.gotoAndPlay(0);
+        explosion.onComplete = function () {
+            _this.game.app.stage.removeChild(explosion);
+        };
+        this.game.app.stage.addChild(explosion);
+    };
     Explode.prototype.move = function () {
     };
     Explode.prototype.notify = function () {
@@ -392,7 +424,7 @@ var Explode = (function (_super) {
 var Flying = (function (_super) {
     __extends(Flying, _super);
     function Flying(x, y) {
-        _super.call(this, x, y, "rocket");
+        _super.call(this, x, y, PIXI.loader.resources.rocket.texture);
         this.movingLeft = false;
         this.movingRight = false;
         this.turbo = false;

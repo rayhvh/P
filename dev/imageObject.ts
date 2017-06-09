@@ -4,8 +4,8 @@ abstract class ImageObject extends PIXI.Sprite{
 
     protected game:Game;
 
-    constructor(image:string, x:number, y:number, w:number, h:number){
-        super(PIXI.loader.resources[image].texture);
+    constructor(image:PIXI.Texture, x:number, y:number, w:number, h:number){
+        super(image);
 
         this.x = x;
         this.y = y;

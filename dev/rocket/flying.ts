@@ -13,7 +13,7 @@ class Flying extends Rocket implements Observer{
     private keyHit:Array<KeyBoard>;
 
     constructor(x:number,y:number){
-        super(x,y,"rocket");
+        super(x,y,PIXI.loader.resources.rocket.texture);
         this.sideSpeed = 5;
         this.keyHit = new Array();
     }

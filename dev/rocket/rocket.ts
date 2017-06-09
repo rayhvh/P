@@ -5,7 +5,7 @@ abstract class Rocket extends ImageObject{
     public graphics:PIXI.Graphics;
     
 
-    constructor(x:number, y:number,sprite:string){
+    constructor(x:number, y:number,sprite:PIXI.Texture){
         super(sprite,x,y,40,60);
         // this.drawHitBox();
         let padding = this.width / 2;

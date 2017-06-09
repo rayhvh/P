@@ -10,7 +10,7 @@ abstract class Asteroid extends ImageObject{
     public graphics:PIXI.Graphics;
     
     constructor(x:number, y:number,w:number,h:number){
-        super("astroid",x,y,w,h);
+        super(PIXI.loader.resources.astroid.texture,x,y,w,h);
         this.r = w / 2;
         let padding = 25;
         this.hitBox = new GameObject(this.x + padding /2, this.y + padding / 2, this.width - padding,this.height - padding)

@@ -20,6 +20,8 @@ class Game {
     public multiplier:number;
     private score:number = 0;
 
+    private gameOver:Boolean = false;
+
     public static getInstance(){
         if(!Game.instance){
             Game.instance = new Game();
@@ -33,14 +35,18 @@ class Game {
     private preloader():void{
         PIXI.loader.add('astroid', 'images/astroid.png')
                     .add('rocket', 'images/rocket.png')
-                    .add('rocketexplode', 'images/explosion.png');
+                    .add('rocketexplode', 'images/explosion.png')
+                    .add('explode', 'images/sprites.json');
         PIXI.loader.load(() => this.loader());
     }
 
     //loader - load the other stuff.
     public loader(){
+        
         this.app = new PIXI.Application(800, 600, {backgroundColor : 0x000000});
         document.body.appendChild(this.app.view);
+        this.app.stage.interactive = true;
+        // var spineBoy = new PIXI.spine.Spine(res.spineboy.spineData);
 
         this.background = new Background(2,this.app.renderer.width,this.app.renderer.height);
         // We need some Astroids to fall at the beginning.
@@ -61,8 +67,12 @@ class Game {
 
         //load the spawner this will spawn the astroids
         this.spawner = new Spawner();
-
+        this.spriteje();
         requestAnimationFrame(() => this.gameLoop());
+    }
+
+    spriteje(){
+       
     }
 
     scoreHandler(){
@@ -73,25 +83,30 @@ class Game {
     }
 
     gameLoop(){
-        this.background.move();
-       
-        this.spawner.spawn();
-
-        for(let asteroid of this.asteroids){
-            if(Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)){
-                console.log("HIT!");
-                this.gameSpeed = 0;
-                this.rocket.remove();
-                this.rocket = new Explode(this.rocket.x, this.rocket.y);
-            }
-            asteroid.move();
-        }
-        this.rocket.move();
-
-        this.scoreHandler();
+        if(!this.gameOver){
+            this.background.move();
         
-        this.app.renderer.render(this.app.stage);
-        this.timer++;
+            this.spawner.spawn();
+
+            for(let asteroid of this.asteroids){
+                if(Util.Collision.collidingRects(asteroid.hitBox, this.rocket.hitBox)){
+                    console.log("HIT!");
+                    this.gameSpeed = 0;
+                    this.rocket.remove();
+                    this.rocket = new Explode(this.rocket.x, this.rocket.y);
+                    this.gameOver = true;
+                }
+                asteroid.move();
+            }
+            this.rocket.move();
+
+            this.scoreHandler();
+            
+            this.app.renderer.render(this.app.stage);
+            this.timer++;
+        }else{
+            console.log("GAME OVER!");
+        }
 
         requestAnimationFrame(() => this.gameLoop());
     }
