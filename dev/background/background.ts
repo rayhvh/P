@@ -45,6 +45,7 @@ class Background{
             let star = this.stars[i];
 
             if(Util.hitBottom(star.y,this.game.app.renderer.height)){
+                this.stars[i].remove();
                 this.stars.splice(i,1);
             }
             star.move();

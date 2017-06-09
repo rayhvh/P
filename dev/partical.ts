@@ -3,7 +3,7 @@ class Partical extends PIXI.Graphics{
     private graphics:PIXI.Graphics;
     private color:number;
     private opacity:number;
-    private game:Game;
+    public game:Game;
     private radius:number;
 
     constructor(x:number, y:number, r:number,color:number,opacity:number){
@@ -19,6 +19,9 @@ class Partical extends PIXI.Graphics{
 
         this.draw();
         // this.displyGr
+    }
+    remove(){
+        this.game.app.stage.removeChild(this);
     }
 
     draw(){

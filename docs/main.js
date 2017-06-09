@@ -128,6 +128,9 @@ var Partical = (function (_super) {
         this.opacity = opacity;
         this.draw();
     }
+    Partical.prototype.remove = function () {
+        this.game.app.stage.removeChild(this);
+    };
     Partical.prototype.draw = function () {
         this.lineStyle(0);
         this.beginFill(this.color, this.opacity);
@@ -214,7 +217,6 @@ var Asteroid = (function (_super) {
         this.r = w / 2;
         var padding = 25;
         this.hitBox = new GameObject(this.x + padding / 2, this.y + padding / 2, this.width - padding, this.height - padding);
-        console.log("RADIUS : " + this.r);
     }
     Asteroid.prototype.drawHitBox = function () {
         var padding = 25;
@@ -287,6 +289,7 @@ var Background = (function () {
         for (var i = 0; i < this.stars.length; i++) {
             var star = this.stars[i];
             if (Util.hitBottom(star.y, this.game.app.renderer.height)) {
+                this.stars[i].remove();
                 this.stars.splice(i, 1);
             }
             star.move();
@@ -301,7 +304,7 @@ var Star = (function (_super) {
         this.z = z;
     }
     Star.prototype.move = function () {
-        this.y += this.z;
+        this.y += this.z * this.game.gameSpeed;
     };
     return Star;
 }(Partical));
