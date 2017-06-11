@@ -20,3 +20,6 @@ Af:
 - [ ] Scoren optellen en laten zien
 - [ ] Sprites toevoegen.
 
+#### Week 7 review:
+Er moet nog een spel begin en einde echt gemaakt worden.
+Een externe plugin gebruikt worden. 
